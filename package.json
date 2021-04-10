@@ -1,0 +1,26 @@
+{
+  "name": "icon-converter",
+  "displayName": "Icon Converter",
+  "version": "0.0.1",
+  "description": "Tool to convert icons from ICO to PNG",
+  "date": "April 2021",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jakubhojnacki/icon-converter.git"
+  },
+  "keywords": [
+    "icon",
+    "ico",
+    "png"
+  ],
+  "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jakubhojnacki/icon-converter/issues"
+  },
+  "homepage": "https://github.com/jakubhojnacki/icon-converter#readme"
+}
