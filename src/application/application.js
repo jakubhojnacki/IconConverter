@@ -40,10 +40,10 @@ class Application {
         return this.args.get(ArgName.debugMode, false);
     }
 
-    run() {
+    async run() {
         try {
             if (this.initialise())
-                this.runLogic();
+                await this.runLogic();
         } catch (error) {
             this.logger.writeError(this.debugMode ? error.stack : error.message);
         } finally {
@@ -68,13 +68,13 @@ class Application {
         pArgTepmlates.reportInvalid(pArgs);
     }
     
-    runLogic() {
+    async runLogic() {
         const sourceFolderPath = this.args.get(ArgName.sourceFolderPath);
         const sourceFileMask = this.args.get(ArgName.sourceFileMask);
         const destinationFolderPath = this.args.get(ArgName.destinationFolderPath);
         const destinationFileType = this.args.get(ArgName.destinationFileType);
         const iconConverter = new IconConverter(sourceFolderPath, sourceFileMask, destinationFolderPath, destinationFileType);
-        iconConverter.run();
+        await iconConverter.run();
     }
 
     finalise() {

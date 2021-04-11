@@ -4,6 +4,7 @@
  * @version 0.0.1 (2021-04-11)
  */
 
+const imagemagick = require("imagemagick");
 const path = require("path");
 
 require("../general/javaScript");
@@ -12,12 +13,11 @@ class ImageMagick {
     constructor() {
     }
 	
-    async split(pSourcePath, pDestinationFolderPath) {
-        const sourceFileInfo = path.parse(pSourcePath);
-        await this.convert([pSourcePath, `${sourceFileInfo.dir}/${sourceFileInfo.name}_%04d.${sourceFileInfo.ext}`]);
+    async split(pSourcePath, pDestinationFolderPath, pDestinationFileType) {
+        await this.convertInt([pSourcePath, `${pDestinationFolderPath}/%02d.${pDestinationFileType}`]);
 	}    
 
-	convert(pParameters) {
+	convertInt(pParameters) {
 		return new Promise((lResolve, lReject) => {
 			imagemagick.convert(pParameters, (lError, lStdOut) => {
 				if (lError)
@@ -26,6 +26,20 @@ class ImageMagick {
 			});
 		});
 	}    
+
+	async getInformation(pImageFilePath) {
+		return await this.identifyInt(pImageFilePath);
+	}
+
+	identifyInt(pImageFilePath) {
+		return new Promise((lResolve, lReject) => {
+			imagemagick.identify(pImageFilePath, (lError, lImageData) => {
+				if (lError)
+					lReject();
+				lResolve(lImageData);
+			});
+		});
+	}
 }
 
 module.exports = ImageMagick;
