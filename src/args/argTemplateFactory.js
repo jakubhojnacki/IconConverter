@@ -14,9 +14,11 @@ const DataType = require("../general/dataType");
 /*static*/ class ArgTemplateFactory {
     static create() {
         return new ArgTemplates([
-            new ArgTemplate([ "sf", "sourceFolderPath" ], ArgName.sourceFolderPath, "Path of source folder", DataType.string),
-            new ArgTemplate([ "df", "destinationFolderPath" ], ArgName.destinationFolderPath, "Path of destination folder", DataType.string),
-            new ArgTemplate([ "d", "debugMode" ], ArgName.debugMode, "Defines debug mode (\"true\" or \"false\")", DataType.boolean)
+            new ArgTemplate([ "s", "sourceFolderPath" ], ArgName.sourceFolderPath, "Path of source folder", DataType.string),
+            new ArgTemplate([ "m", "sourceFileMask" ], ArgName.sourceFileMask, "Mask of source files to process", DataType.string),
+            new ArgTemplate([ "d", "destinationFolderPath" ], ArgName.destinationFolderPath, "Path of destination folder", DataType.string),
+            new ArgTemplate([ "t", "destinationFileType" ], ArgName.destinationFileType, "Type of destination file", DataType.string),
+            new ArgTemplate([ "dm", "debugMode" ], ArgName.debugMode, "Defines debug mode (\"true\" or \"false\")", DataType.boolean)
         ]);        
     }
 }

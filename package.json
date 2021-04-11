@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/jakubhojnacki/icon-converter/issues"
   },
-  "homepage": "https://github.com/jakubhojnacki/icon-converter#readme"
+  "homepage": "https://github.com/jakubhojnacki/icon-converter#readme",
+  "dependencies": {
+    "imagemagick": "^0.1.3"
+  }
 }

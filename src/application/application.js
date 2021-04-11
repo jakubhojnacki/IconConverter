@@ -9,7 +9,7 @@ const ArgName = require("../args/argName");
 const Args = require("../args/args");
 const ArgTemplateFactory = require("../args/argTemplateFactory");
 const ConsoleLogger = require("../logging/consoleLogger");
-const IconConverter = require("../iconConverter/iconConverter");
+const IconConverter = require("../conversion/iconConverter");
 
 require("../general/javaScript");
 
@@ -42,12 +42,8 @@ class Application {
 
     run() {
         try {
-            if (this.initialise()) {
-                const sourceFolderPath = this.args.get(ArgName.sourceFolderPath);
-                const destinationFolderPath = this.args.get(ArgName.destinationFolderPath);
-                const iconConverter = new IconConverter(sourceFolderPath, destinationFolderPath);
-                iconConverter.run();
-            }
+            if (this.initialise())
+                this.runLogic();
         } catch (error) {
             this.logger.writeError(this.debugMode ? error.stack : error.message);
         } finally {
@@ -60,7 +56,7 @@ class Application {
         this.logger.writeText((new Date()).toFriendlyDateTimeString());
         this.logger.newLine();
         const __this = this;
-        const result = this.args.validate(ArgTemplateFactory.create(), (lArgTemplates, lArgs) => { __this.args_onInvalid(lArgTemplates, lArgs); });
+        const result = this.args.validate(ArgTemplateFactory.create(), (lArgTemplates, lArgs) => { __this.onArgsInvalid(lArgTemplates, lArgs); });
         if ((result) && (this.debugMode)) {
             this.args.log();
             this.logger.newLine();
@@ -68,10 +64,19 @@ class Application {
         return result;
     }
 
-    args_onInvalid(pArgTepmlates, pArgs) {
+    onArgsInvalid(pArgTepmlates, pArgs) {
         pArgTepmlates.reportInvalid(pArgs);
     }
     
+    runLogic() {
+        const sourceFolderPath = this.args.get(ArgName.sourceFolderPath);
+        const sourceFileMask = this.args.get(ArgName.sourceFileMask);
+        const destinationFolderPath = this.args.get(ArgName.destinationFolderPath);
+        const destinationFileType = this.args.get(ArgName.destinationFileType);
+        const iconConverter = new IconConverter(sourceFolderPath, sourceFileMask, destinationFolderPath, destinationFileType);
+        iconConverter.run();
+    }
+
     finalise() {
         this.logger.newLine();
         this.logger.writeText("Completed.");
