@@ -110,10 +110,9 @@ function parseIdentify(input) {
 
   // JH >>>
   //for (i in lines) {
-  //  currentLine = lines[i];
   for (i of lines) {
-    currentLine = i;
   // JH <<<
+  currentLine = lines[i];
     indent = currentLine.search(/\S/);
     if (indent >= 0) {
       comps = currentLine.split(': ');

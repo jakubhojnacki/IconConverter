@@ -4,6 +4,7 @@
  * @version 0.0.1 (2021-04-10)
  */
 
+const { timeStamp } = require("console");
 const fs = require("fs");
 const path = require("path");
 
@@ -51,7 +52,7 @@ class IconConverter {
                 const sourceSubFolderPath = path.join(pSourceFolderPath, sourceFolderEntry.name);
                 const destinationSubFolderName = this.convertSourceToDestinationFolderName(sourceFolderEntry.name);
                 const destinationSubFolderPath = path.join(pDestinationFolderPath, destinationSubFolderName);
-                this.processFolder(sourceSubFolderPath, sourceFolderEntry.name, destinationSubFolderPath, pIndentation + 1);
+                await this.processFolder(sourceSubFolderPath, sourceFolderEntry.name, destinationSubFolderPath, pIndentation + 1);
             } else if (sourceFolderEntry.isFile())
 				if (this.sourceFileMask.contains(sourceFolderEntry.name)) {
                     const sourceFilePath = path.join(pSourceFolderPath, sourceFolderEntry.name);
@@ -68,7 +69,7 @@ class IconConverter {
         this.logger.writeText(pSourceFileName, pIndentation * this.logger.tab);
         this.emptyTemporaryFolder();
         await this.splitSourceFile(pSourceFilePath);
-        await this.processTemporaryFiles();
+        await this.processTemporaryFiles(pDestinationFolderPath);
     }
 
     emptyTemporaryFolder() {
@@ -83,26 +84,28 @@ class IconConverter {
         await this.imageMagick.split(pSourceFilePath, this.temporaryFolderPath, this.destinationFileType);
     }
 
-    async processTemporaryFiles() {
+    async processTemporaryFiles(pDestinationFolderPath) {
 		const temporaryFolderEntries = fs.readdirSync(this.temporaryFolderPath, { withFileTypes: true });
 		for (const temporaryFolderEntry of temporaryFolderEntries)
             if (temporaryFolderEntry.isFile())
                 if (this.temporaryFileMask.contains(temporaryFolderEntry.name)) {
                     const temporaryFilePath = path.join(this.temporaryFolderPath, temporaryFolderEntry.name);
                     const imageInformation = await this.imageMagick.getInformation(temporaryFilePath);
-                    this.logger.writeText(imageInformation);
+                    this.copyFileToDestination(temporaryFilePath, imageInformation, pDestinationFolderPath, temporaryFolderEntry.name);
+
+
+                    const destinationSizeSubFolder = `${imageInformation.width}x${imageInformation.height}`;
+                    const destinationsubFolderPath = this.createDestinationSubFolderPath(destinationSizeSubFolder, pDestinationFolderPath);
+                    this.makeSureDestinationSubFolderExists(destinationsubFolderPath);
+                    const destin
                 }
     }    
 
-    /* 
-    makeSureDestinationFolderExists(pSourceSubFolderName, pDestinationFolderPath) {
-        const destinationSubFolderName = ;
-        const destinationSubFolderPath = path.join(pDestinationFolderPath, destinationSubFolderName);
-        if (fs.existsSync(destinationSubFolderPath))
-            fs.mkdirSync(destinationSubFolderPath);
-        return destinationSubFolderPath;
+    copyFileToDestination(pTemporaryFilePath, pImageInformation, pDestinationFolderPath, pFileName) {
+        const destinationSizeSubFolder = `${pImageInformation.width}x${pImageInformation.height}`;
+        const destinationFilePath = path.join(this.destinationFolderPath, destinationSizeSubFolder, pDestinationFolderPath, pFileName);
+        fs.copyFileSync(pTemporaryFilePath, destinationFilePath);
     }
-    */
 }
 
 module.exports = IconConverter;
