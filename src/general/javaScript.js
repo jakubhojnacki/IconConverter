@@ -1,7 +1,7 @@
 /**
  * @module JavaScript extensions
  * @description A series of useful language extensions
- * @version 0.0.5 (2021-04-06)
+ * @version 0.0.6 (2021-04-13)
  */
 
 Array.isNonEmpty = function(pArray) {
@@ -58,7 +58,7 @@ Boolean.validate = function(pInput, pDefaultValue, pAllowNull) {
 				} break;
 		}
 		if (value == null)
-			Object.raiseTypeError(pValue, this.name);
+			Object.raiseTypeError(pInput, this.name);
 	} else if (!pAllowNull)
 		value = pDefaultValue != null ? pDefaultValue : false;
 	return value;
@@ -300,4 +300,8 @@ String.prototype.removeIfEndsWith = function(pPart) {
 		if (this.substr(this.length - pPart.length) === pPart)
 			newString = this.substr(0, this.length - pPart.length);
 	return newString;
+}
+
+String.prototype.replaceAll = function(pFind, pReplace) {
+	return this.replace(new RegExp(pFind, 'g'), pReplace);
 }

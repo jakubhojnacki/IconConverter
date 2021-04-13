@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 
 const FileMask = require("./fileMask");
+const IconIndex = require("./iconIndex");
 const ImageMagick = require("./imageMagick");
 
 require("../general/javaScript");
@@ -18,60 +19,77 @@ class IconConverter {
     get logger() { return global.application.logger; }
     get sourceFolderPath() { return this.mSourceFolderPath; }
     get sourceFileMask() { return this.mSourceFileMask; }
+    get minimumColourDepth() { return this.mMinimumColourDepth; }
     get destinationFolderPath() { return this.mDestinationFolderPath; }
+    get destinationFolderNamePattern() { return this.mDestinationFolderNamePattern; }
     get destinationFileType() { return this.mDestinationFileType; }
+    get destinationFileNamePattern() { return this.mDestinationFileNamePattern; }
+    get ignoreNonSquareImages() { return this.mIgnoreNonSquareImages; }
     get temporaryFolderPath() { return this.mTemporaryFolderPath; }
     get temporaryFileMask() { return this.mTemporaryFileMask; }
     get imageMagick() { return this.mImageMagick; }
+    get iconIndex() { return this.mIconIndex; }
 
-    constructor(pSourceFolderPath, pSourceFileMask, pDestinationFolderPath, pDestinationFileType) {
+    constructor(pSourceFolderPath, pSourceFileMask, pMinimumColourDepth, pDestinationFolderPath, pDestinationFolderNamePattern, pDestinationFileType,
+        pDestinationFileNamePattern, pIgnoreNonSquareImages, pCreateIndex, pIndexFileName, pIndexNamePattern) {
         this.mSourceFolderPath = String.validate(pSourceFolderPath);
         this.mSourceFileMask = new FileMask(pSourceFileMask);
+        this.mMinimumColourDepth = Number.validateAsInteger(pMinimumColourDepth, 8);
         this.mDestinationFolderPath = String.validate(pDestinationFolderPath);
+        this.mDestinationFolderNamePattern = String.validate(pDestinationFolderNamePattern);
         this.mDestinationFileType = String.validate(pDestinationFileType);
+        this.mDestinationFileNamePattern = String.validate(pDestinationFileNamePattern);
+        this.mIgnoreNonSquareImages = Boolean.validate(pIgnoreNonSquareImages);
         this.mTemporaryFolderPath = path.join(this.destinationFolderPath, "__temp");
         this.mTemporaryFileMask = new FileMask(`*.${this.destinationFileType}`);
         this.mImageMagick = new ImageMagick();
+        this.mIconIndex = new IconIndex(pCreateIndex, this.destinationFolderPath, pIndexFileName, pIndexNamePattern);
     }
 
     async run() {
-        this.makeSureTemporaryFolderExists();
-        await this.processFolder(this.sourceFolderPath, "/", this.destinationFolderPath, 0);
+        this.iconIndex.initialise();
+        this.makeSureFolderExists(this.temporaryFolderPath);
+        await this.processFolder(this.sourceFolderPath, "/", "", 0);
+        this.makeSureFolderIsDeleted(this.temporryFolderPath);
+        this.iconIndex.finalise();
     }
 
-    makeSureTemporaryFolderExists() {
-        if (!fs.existsSync(this.temporaryFolderPath))
-            fs.mkdirSync(this.temporaryFolderPath);
-    }
-
-    async processFolder(pSourceFolderPath, pSourceFolderName, pDestinationFolderPath, pIndentation) {
+    async processFolder(pSourceFolderPath, pSourceFolderName, pDestinationFolderSubPath, pIndentation) {
         this.logger.writeText(`[${pSourceFolderName}]`, pIndentation * this.logger.tab);
 		const sourceFolderEntries = fs.readdirSync(pSourceFolderPath, { withFileTypes: true });
 		for (const sourceFolderEntry of sourceFolderEntries) {
             if (sourceFolderEntry.isDirectory()) {
                 const sourceSubFolderPath = path.join(pSourceFolderPath, sourceFolderEntry.name);
                 const destinationSubFolderName = this.convertSourceToDestinationFolderName(sourceFolderEntry.name);
-                const destinationSubFolderPath = path.join(pDestinationFolderPath, destinationSubFolderName);
+                const destinationSubFolderPath = path.join(pDestinationFolderSubPath, destinationSubFolderName);
                 await this.processFolder(sourceSubFolderPath, sourceFolderEntry.name, destinationSubFolderPath, pIndentation + 1);
             } else if (sourceFolderEntry.isFile())
 				if (this.sourceFileMask.contains(sourceFolderEntry.name)) {
                     const sourceFilePath = path.join(pSourceFolderPath, sourceFolderEntry.name);
-                    await this.processFile(sourceFilePath, sourceFolderEntry.name, pDestinationFolderPath, pIndentation + 1);
+                    await this.processFile(pSourceFolderName, sourceFilePath, sourceFolderEntry.name, pDestinationFolderSubPath, pIndentation + 1);
                 }
         }
     }  
 
     convertSourceToDestinationFolderName(pSourceFolderName) {
-        return pSourceFolderName.toLowerCase().replace(" ", "-");
+        let destinationFolderName =  pSourceFolderName;
+        if (this.destinationFolderNamePattern) {
+            const linuxCaseFolderName = pSourceFolderName.toLowerCase().replaceAll(" ", "-");
+            destinationFolderName = this.destinationFolderNamePattern;
+            destinationFolderName = destinationFolderName.replace("{0}", pSourceFolderName);
+            destinationFolderName = destinationFolderName.replace("{1}", linuxCaseFolderName);
+        }
+        return destinationFolderName;
     }
 
-    async processFile(pSourceFilePath, pSourceFileName, pDestinationFolderPath, pIndentation) {
+    async processFile(pSourceFolderName, pSourceFilePath, pSourceFileName, pDestinationFolderSubPath, pIndentation) {
         this.logger.writeText(pSourceFileName, pIndentation * this.logger.tab);
         this.emptyTemporaryFolder();
         await this.splitSourceFile(pSourceFilePath);
-        await this.processTemporaryFiles(pDestinationFolderPath);
+        const destinationFileName = this.convertSourceToDestinationFileName(pSourceFileName);
+        await this.processTemporaryFiles(pSourceFolderName, pDestinationFolderSubPath, destinationFileName);
     }
-
+    
     emptyTemporaryFolder() {
 		const temporaryFolderEntries = fs.readdirSync(this.temporaryFolderPath, { withFileTypes: true });
 		for (const temporaryFolderEntry of temporaryFolderEntries)
@@ -84,27 +102,49 @@ class IconConverter {
         await this.imageMagick.split(pSourceFilePath, this.temporaryFolderPath, this.destinationFileType);
     }
 
-    async processTemporaryFiles(pDestinationFolderPath) {
+    convertSourceToDestinationFileName(pSourceFileName) {
+        const sourceFileNameWithoutExtension = path.parse(pSourceFileName).name;
+        let destinationFileName =  sourceFileNameWithoutExtension;
+        if (this.destinationFileNamePattern) {
+            const linuxCaseFileName = sourceFileNameWithoutExtension.toLowerCase().replaceAll(" ", "-");
+            destinationFileName = this.destinationFileNamePattern;
+            destinationFileName = destinationFileName.replace("{0}", pSourceFileName);
+            destinationFileName = destinationFileName.replace("{1}", linuxCaseFileName);
+        }
+        return destinationFileName;
+    }
+
+    async processTemporaryFiles(pSourceFolderName, pDestinationFolderSubPath, pDestinationFileName) {
 		const temporaryFolderEntries = fs.readdirSync(this.temporaryFolderPath, { withFileTypes: true });
 		for (const temporaryFolderEntry of temporaryFolderEntries)
             if (temporaryFolderEntry.isFile())
                 if (this.temporaryFileMask.contains(temporaryFolderEntry.name)) {
                     const temporaryFilePath = path.join(this.temporaryFolderPath, temporaryFolderEntry.name);
                     const imageInformation = await this.imageMagick.getInformation(temporaryFilePath);
-                    this.copyFileToDestination(temporaryFilePath, imageInformation, pDestinationFolderPath, temporaryFolderEntry.name);
-
-
-                    const destinationSizeSubFolder = `${imageInformation.width}x${imageInformation.height}`;
-                    const destinationsubFolderPath = this.createDestinationSubFolderPath(destinationSizeSubFolder, pDestinationFolderPath);
-                    this.makeSureDestinationSubFolderExists(destinationsubFolderPath);
-                    const destin
+                    if (imageInformation.depth >= this.minimumColourDepth)
+                        if ((!this.ignoreNonSquareImages) || (imageInformation.width == imageInformation.height)) {
+                            this.iconIndex.add(pSourceFolderName, pDestinationFolderSubPath, imageInformation.width);
+                            this.copyFileToDestination(temporaryFilePath, imageInformation, pDestinationFolderSubPath, pDestinationFileName);
+                        }
                 }
     }    
 
-    copyFileToDestination(pTemporaryFilePath, pImageInformation, pDestinationFolderPath, pFileName) {
+    copyFileToDestination(pTemporaryFilePath, pImageInformation, pDestinationFolderSubPath, pFileName) {
         const destinationSizeSubFolder = `${pImageInformation.width}x${pImageInformation.height}`;
-        const destinationFilePath = path.join(this.destinationFolderPath, destinationSizeSubFolder, pDestinationFolderPath, pFileName);
+        const destinationFolderPath = path.join(this.destinationFolderPath, destinationSizeSubFolder, pDestinationFolderSubPath);
+        this.makeSureFolderExists(destinationFolderPath);
+        const destinationFilePath = path.join(destinationFolderPath, pFileName);
         fs.copyFileSync(pTemporaryFilePath, destinationFilePath);
+    }
+
+    makeSureFolderExists(pFolderPath) {
+        if (!fs.existsSync(pFolderPath))
+            fs.mkdirSync(pFolderPath, { recursive: true });
+    }
+
+    makeSureFolderIsDeleted(pFolderPath) {
+        if (fs.existsSync(pFolderPath))
+            fs.rmdirSync(pFolderPath);
     }
 }
 

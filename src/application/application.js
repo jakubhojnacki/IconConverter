@@ -70,10 +70,19 @@ class Application {
     
     async runLogic() {
         const sourceFolderPath = this.args.get(ArgName.sourceFolderPath);
-        const sourceFileMask = this.args.get(ArgName.sourceFileMask);
+        const sourceFileMask = this.args.get(ArgName.sourceFileMask, "*.*");
+        const minimumColourDepth = this.args.get(ArgName.minimumColourDepth, 8);
         const destinationFolderPath = this.args.get(ArgName.destinationFolderPath);
+        const destinationFolderNamePattern = this.args.get(ArgName.destinationFolderNamePattern, "");
         const destinationFileType = this.args.get(ArgName.destinationFileType);
-        const iconConverter = new IconConverter(sourceFolderPath, sourceFileMask, destinationFolderPath, destinationFileType);
+        const destinationFileNamePattern = this.args.get(ArgName.destinationFileNamePattern, "");
+        const ignoreNonSquareImages = this.args.get(ArgName.ignoreNonSquareImages, false);
+        const createIndex = this.args.get(ArgName.createIndex, false); 
+        const indexFileName = this.args.get(ArgName.indexFileName, "index.theme");
+        const indexNamePattern = this.args.get(ArgName.indexNamePattern, "");
+        const iconConverter = new IconConverter(sourceFolderPath, sourceFileMask, minimumColourDepth, destinationFolderPath, 
+            destinationFolderNamePattern, destinationFileType, destinationFileNamePattern, ignoreNonSquareImages, createIndex, 
+            indexFileName, indexNamePattern);
         await iconConverter.run();
     }
 
