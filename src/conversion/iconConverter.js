@@ -111,7 +111,7 @@ class IconConverter {
             destinationFileName = destinationFileName.replace("{0}", pSourceFileName);
             destinationFileName = destinationFileName.replace("{1}", linuxCaseFileName);
         }
-        return destinationFileName;
+        return `${destinationFileName}.${this.destinationFileType}`;
     }
 
     async processTemporaryFiles(pSourceFolderName, pDestinationFolderSubPath, pDestinationFileName) {
@@ -122,19 +122,19 @@ class IconConverter {
                     const temporaryFilePath = path.join(this.temporaryFolderPath, temporaryFolderEntry.name);
                     const imageInformation = await this.imageMagick.getInformation(temporaryFilePath);
                     if (imageInformation.depth >= this.minimumColourDepth)
-                        if ((!this.ignoreNonSquareImages) || (imageInformation.width == imageInformation.height)) {
-                            this.iconIndex.add(pSourceFolderName, pDestinationFolderSubPath, imageInformation.width);
-                            this.copyFileToDestination(temporaryFilePath, imageInformation, pDestinationFolderSubPath, pDestinationFileName);
-                        }
+                        if ((!this.ignoreNonSquareImages) || (imageInformation.width == imageInformation.height))
+                            this.copyFileToDestination(pSourceFolderName, temporaryFilePath, imageInformation, pDestinationFolderSubPath, pDestinationFileName);
                 }
     }    
 
-    copyFileToDestination(pTemporaryFilePath, pImageInformation, pDestinationFolderSubPath, pFileName) {
+    copyFileToDestination(pSourceFolderName, pTemporaryFilePath, pImageInformation, pDestinationFolderSubPath, pFileName) {
         const destinationSizeSubFolder = `${pImageInformation.width}x${pImageInformation.height}`;
         const destinationFolderPath = path.join(this.destinationFolderPath, destinationSizeSubFolder, pDestinationFolderSubPath);
         this.makeSureFolderExists(destinationFolderPath);
         const destinationFilePath = path.join(destinationFolderPath, pFileName);
         fs.copyFileSync(pTemporaryFilePath, destinationFilePath);
+        const indexFolder = path.join(destinationSizeSubFolder, pDestinationFolderSubPath);
+        this.iconIndex.add(indexFolder, pImageInformation.width, pSourceFolderName);
     }
 
     makeSureFolderExists(pFolderPath) {

@@ -16,6 +16,7 @@ class IconIndex {
     get namePattern() { return this.mNamePattern; }
     get file() { return this.mFile; }
     set file(pValue) { this.mFile = pValue; }
+    get folders() { return this.mFolders; }
 
     constructor(pCreate, pFolderPath, pFileName, pNamePattern) {
         this.mCreate = Boolean.validate(pCreate);
@@ -23,6 +24,7 @@ class IconIndex {
         this.mFileName = String.validate(pFileName);
         this.mNamePattern = String.validate(pNamePattern);
         this.mFile = null;
+        this.mFolders = [];
     }
 
     initialise() {
@@ -32,14 +34,16 @@ class IconIndex {
         }
     }
 
-    add(pSourceFolderName, pDestinationFolderSubPath, pIconSize) {
-        if (this.create) {
-            this.writeLine(`[${pDestinationFolderSubPath}]`);
-            this.writeLine(`Size=${pIconSize}`);
-            this.writeLine(`Context=${this.createName(pSourceFolderName)}`);
-            this.writeLine("Type=Threshold");
-            this.writeLine("");
-        }
+    add(pFolder, pSize, pName) {
+        if (this.create)
+            if (!this.folders.contains(pFolder)) {
+                this.writeLine(`[${pFolder}]`);
+                this.writeLine(`Size=${pSize}`);
+                this.writeLine(`Context=${this.createName(pName)}`);
+                this.writeLine("Type=Threshold");
+                this.writeLine("");
+                this.folders.push(pFolder);
+            }
     }
 
     writeLine(pLine) {
