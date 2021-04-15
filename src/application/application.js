@@ -47,7 +47,7 @@ class Application {
     }
 
     initialiseDebugMode() {
-        return this.args.get(ArgName.debugMode, false);
+        return this.args.get(ArgName.debugMode, true);
     }
 
     async run() {

@@ -9,8 +9,8 @@ class FileMask {
 	get regExp() { return this.mRegExp; }
 
 	constructor(pMask) {
-		this.mMask = FileMask.parseMask(pMask);
-		this.mRegExp = new RegExp(this.mask);
+		this.mMask = pMask;
+		this.mRegExp = new RegExp(FileMask.parseMask(this.mask));
 	}
 
 	static parseMask(pMask) {
@@ -25,6 +25,10 @@ class FileMask {
 
 	contains(pFileName) {
 		return this.regExp.test(pFileName);
+	}
+
+	toString() {
+		return this.mask;
 	}
 }
 

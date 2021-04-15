@@ -25,34 +25,34 @@ class IconConverter {
 
     constructor() {
         this.validateSettings();
-        this.mTemporaryFolderPath = path.join(this.settings.destinationFolderPath, "__temp");
-        this.mTemporaryFileMask = new FileMask(`*.${this.settings.destinationFileType}`);
+        this.mTemporaryFolderPath = path.join(this.settings.destination.folderPath, "__temp");
+        this.mTemporaryFileMask = new FileMask(`*.${this.settings.destination.fileType}`);
         this.mImageMagick = new ImageMagick();
-        this.mIconIndex = new IconIndex(this.settings.createIndex, this.settings.destinationFolderPath, this.settings.indexFileName, 
-            this.settings.indexNamePattern);
+        this.mIconIndex = new IconIndex(this.settings.index.create, this.settings.destination.folderPath, this.settings.index.fileName, 
+            this.settings.index.namePattern);
     }
 
     validateSettings() {
-        if (!this.settings.sourceFolderPath)
+        if (!this.settings.source.folderPath)
             throw new Error("Empty source folder path.");
-        if (!this.settings.sourceFileMask)
+        if (!this.settings.source.fileMask)
             throw new Error("Empty source file mask.");
-        if ((!this.settings.sizes) || (this.settings.sizes.length === 0))
+        if ((!this.settings.source.sizes) || (this.settings.source.sizes.length === 0))
             throw new Error("No sizes have been defined.");
-        if (!this.settings.destinationFolderPath)
+        if (!this.settings.destination.folderPath)
             throw new Error("Empty destination folder path.");
-        if (!this.settings.destinationFileType)
+        if (!this.settings.destination.fileType)
             throw new Error("Empty destination file type.");
-        if (this.settings.createIndex)
-            if (!this.settings.indexFileName)
+        if (this.settings.index.create)
+            if (!this.settings.index.fileName)
                 throw new Error("Empty index file name.");
     }    
     
     async run() {
         this.iconIndex.initialise();
         this.makeSureFolderExists(this.temporaryFolderPath);
-        await this.processFolder(this.settings.sourceFolderPath, "/", "", 0);
-        this.makeSureFolderIsDeleted(this.temporaryFolderPath);
+        await this.processFolder(this.settings.source.folderPath, "/", "", 0);
+        //^^^this.makeSureFolderIsDeleted(this.temporaryFolderPath);
         this.iconIndex.finalise();
     }
 
@@ -66,7 +66,7 @@ class IconConverter {
                 const destinationSubFolderPath = path.join(pDestinationFolderSubPath, destinationSubFolderName);
                 await this.processFolder(sourceSubFolderPath, sourceFolderEntry.name, destinationSubFolderPath, pIndentation + 1);
             } else if (sourceFolderEntry.isFile())
-				if (this.settings.sourceFileMask.contains(sourceFolderEntry.name)) {
+				if (this.settings.source.fileMask.contains(sourceFolderEntry.name)) {
                     const sourceFilePath = path.join(pSourceFolderPath, sourceFolderEntry.name);
                     await this.processFile(pSourceFolderName, sourceFilePath, sourceFolderEntry.name, pDestinationFolderSubPath, pIndentation + 1);
                 }
@@ -75,9 +75,9 @@ class IconConverter {
 
     convertSourceToDestinationFolderName(pSourceFolderName) {
         let destinationFolderName =  pSourceFolderName;
-        if (this.settings.destinationFolderNamePattern) {
+        if (this.settings.destination.folderNamePattern) {
             const linuxCaseFolderName = pSourceFolderName.toLowerCase().replaceAll(" ", "-");
-            destinationFolderName = this.settings.destinationFolderNamePattern;
+            destinationFolderName = this.settings.destination.folderNamePattern;
             destinationFolderName = destinationFolderName.replace("{0}", pSourceFolderName);
             destinationFolderName = destinationFolderName.replace("{1}", linuxCaseFolderName);
         }
@@ -101,19 +101,19 @@ class IconConverter {
     }
 
     async splitSourceFile(pSourceFilePath) {
-        await this.imageMagick.split(pSourceFilePath, this.temporaryFolderPath, this.settings.destinationFileType);
+        await this.imageMagick.split(pSourceFilePath, this.temporaryFolderPath, this.settings.destination.fileType);
     }
 
     convertSourceToDestinationFileName(pSourceFileName) {
         const sourceFileNameWithoutExtension = path.parse(pSourceFileName).name;
         let destinationFileName =  sourceFileNameWithoutExtension;
-        if (this.settings.destinationFileNamePattern) {
+        if (this.settings.destination.fileNamePattern) {
             const linuxCaseFileName = sourceFileNameWithoutExtension.toLowerCase().replaceAll(" ", "-");
-            destinationFileName = this.settings.destinationFileNamePattern;
+            destinationFileName = this.settings.destination.fileNamePattern;
             destinationFileName = destinationFileName.replace("{0}", pSourceFileName);
             destinationFileName = destinationFileName.replace("{1}", linuxCaseFileName);
         }
-        return `${destinationFileName}.${this.settings.destinationFileType}`;
+        return `${destinationFileName}.${this.settings.destination.fileType}`;
     }
 
     async processTemporaryFiles(pSourceFolderName, pDestinationFolderSubPath, pDestinationFileName) {
@@ -123,15 +123,15 @@ class IconConverter {
                 if (this.temporaryFileMask.contains(temporaryFolderEntry.name)) {
                     const temporaryFilePath = path.join(this.temporaryFolderPath, temporaryFolderEntry.name);
                     const imageInformation = await this.imageMagick.getInformation(temporaryFilePath);
-                    if (imageInformation.depth >= this.settings.minimumColourDepth)
-                        if (this.settings.sizes.containsSize(imageInformation.width, imageInformation.height))
+                    if (imageInformation.depth >= this.settings.source.minimumColourDepth)
+                        if (this.settings.source.sizes.containsSize(imageInformation.width, imageInformation.height))
                             this.copyFileToDestination(pSourceFolderName, temporaryFilePath, imageInformation, pDestinationFolderSubPath, pDestinationFileName);
                 }
     }    
 
     copyFileToDestination(pSourceFolderName, pTemporaryFilePath, pImageInformation, pDestinationFolderSubPath, pFileName) {
         const destinationSizeSubFolder = `${pImageInformation.width}x${pImageInformation.height}`;
-        const destinationFolderPath = path.join(this.settings.destinationFolderPath, destinationSizeSubFolder, pDestinationFolderSubPath);
+        const destinationFolderPath = path.join(this.settings.destination.folderPath, destinationSizeSubFolder, pDestinationFolderSubPath);
         this.makeSureFolderExists(destinationFolderPath);
         const destinationFilePath = path.join(destinationFolderPath, pFileName);
         fs.copyFileSync(pTemporaryFilePath, destinationFilePath);
@@ -146,7 +146,7 @@ class IconConverter {
 
     makeSureFolderIsDeleted(pFolderPath) {
         if (fs.existsSync(pFolderPath))
-            fs.rmdirSync(pFolderPath);
+            fs.rmdirSync(pFolderPath, {recursive: true});
     }
 }
 

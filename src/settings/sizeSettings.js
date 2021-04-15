@@ -1,12 +1,12 @@
 /**
- * @module "SettingsSize" class
- * @description Represents size of an image
+ * @module "SizeSettings" class
+ * @description Represents settings containing size of an image
  * @version 0.0.1 (2021-04-15)
  */
 
  require("../general/javaScript");
 
- class SettingsSize {
+ class SizeSettings {
     get width() { return this.mWidth; }
     get height() { return this.mHeight; }
 
@@ -27,19 +27,19 @@
         if (pData != null) {
             const width = pData.width;
             const height = pData.height;
-            object = new SettingsSize(width, height);
+            object = new SizeSettings(width, height);
         }
         return object;
     }
 
     static validate(pInput) {
         let value = null;
-        if (pInput instanceof SettingsSize)
+        if (pInput instanceof SizeSettings)
             value = pInput;
         else
-            value = SettingsSize.deserialise(pInput);
+            value = SizeSettings.deserialise(pInput);
         return value;
     }
  }
  
- module.exports = SettingsSize;
+ module.exports = SizeSettings;
