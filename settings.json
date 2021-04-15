@@ -1,0 +1,47 @@
+{
+    "sourceFolderPath": "/home/Temp/Icons",
+    "sourceFileMask": "*.ico",
+    "minimumColourDepth": 8,
+    "sizes": [
+        {
+            "width": 16,
+            "height": 16
+        },
+        {
+            "width": 24,
+            "height": 24
+        },
+        {
+            "width": 32,
+            "height": 32
+        },
+        {
+            "width": 48,
+            "height": 48
+        },
+        {
+            "width": 64,
+            "height": 64
+        },
+        {
+            "width": 96,
+            "height": 96
+        },
+        {
+            "width": 128,
+            "height": 128
+        },
+        {
+            "width": 256,
+            "height": 256
+        }
+    ],
+    "destinationFolderPath": "/home/Temp/Pictures",
+    "destinationFolderNamePattern": "custom-{1}",
+    "destinationFileType": "png",
+    "destinationFileNamePattern": "{1}",
+    "createIndex": true,
+    "indexFileName": "index.theme",
+    "indexNamePattern": "{0} (Custom)",
+    "debugMode": true
+}

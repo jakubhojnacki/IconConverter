@@ -1,0 +1,144 @@
+{
+	"Init": {
+		"prefix": "xini",
+		"body": [
+			"this.m${1/(.)(.*)/${1:/upcase}$2/} = $2.validate(p${1/(.)(.*)/${1:/upcase}$2/});"
+		]
+	},
+
+	"ArrayInit": {
+		"prefix": "xarrini",
+		"body": [
+			"this.m${1/(.)(.*)/${1:/upcase}$2/} = Array.validate(p${1/(.)(.*)/${1:/upcase}$2/});"
+		]
+	},
+
+	"BooleanInit": {
+		"prefix": "xbooini",
+		"body": [
+			"this.m${1/(.)(.*)/${1:/upcase}$2/} = Boolean.validate(p${1/(.)(.*)/${1:/upcase}$2/});"
+		]
+	},
+
+	"NumberInit": {
+		"prefix": "xnumini",
+		"body": [
+			"this.m${1/(.)(.*)/${1:/upcase}$2/} = Number.validate(p${1/(.)(.*)/${1:/upcase}$2/});"
+		]
+	},
+
+	"ObjectInit": {
+		"prefix": "xobjini",
+		"body": [
+			"this.m${1/(.)(.*)/${1:/upcase}$2/} = Object.validate(p${1/(.)(.*)/${1:/upcase}$2/});"
+		]
+	},
+
+	"StringInit": {
+		"prefix": "xstrini",
+		"body": [
+			"this.m${1/(.)(.*)/${1:/upcase}$2/} = String.validate(p${1/(.)(.*)/${1:/upcase}$2/});"
+		]
+	},
+
+	"Property": {
+		"prefix": "xpro",
+		"body": [
+			"get $1() { return this.m${1/(.)(.*)/${1:/upcase}$2/}; }",
+			"set $1(pValue) { this.m${1/(.)(.*)/${1:/upcase}$2/} = pValue; }"
+		]
+	},
+	
+	"GetProperty": {
+		"prefix": "xgetpro",
+		"body": [
+			"get $1() { return this.m${1/(.)(.*)/${1:/upcase}$2/}; }"
+		]
+	},
+
+	"StaticProperty": {
+		"prefix": "xstapro",
+		"body": [
+			"static get $1() { return $2; }"			
+		]
+	},
+
+	"Class": {
+		"prefix": "xcla",
+		"body": [
+			"/**",
+			" * @module \"$1\" class",
+			" * @description $2",
+			" * @version 0.0.1 ($CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE)",
+			" */",
+			"",
+			"require(\"../general/javaScript\");",
+			"",
+			"class $1 {",
+			"    constructor() {",
+			"    }",
+			"}",
+			"",
+			"module.exports = $1;"
+		]
+	},
+
+	"Require": {
+		"prefix": "xreq",
+		"body": [
+			"const ${1/(.)(.*)/${1:/upcase}$2/} = require(\"../$2/${1/(.)(.*)/${1:/downcase}$2/}\");"
+		]
+	},
+
+	"JavaScript": {
+		"prefix": "xjavscr",
+		"body": [
+			"require(\"../general/javaScript\");"
+		]
+	},
+
+	"Module": {
+		"prefix": "xmod",
+		"body": [
+			"/**",
+			" * @module \"$1\" class",
+			" * @description $2",
+			" * @version 0.0.1 ($CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE)",
+			" */"
+		]
+	},
+
+	"Enum": {
+		"prefix": "xenu",
+		"body": [
+			"/**",
+			" * @module \"$1\" class",
+			" * @description $2",
+			" * @version 0.0.1 ($CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE)",
+			" */",
+			"",
+			"require(\"../general/javaScript\");",
+			"",
+			"const Enum = require(\"../general/enum\");",
+			"const EnumValue = require(\"../general/enumValue\");",
+			"",
+			"/*static*/ class $1 {",
+			"    static get one() { return \"one\"; }",
+			"    static get two() { return \"two\"; }",
+			"    static get three() { return \"three\"; }",
+			"",
+			"    static get values() { return [",
+			"        new EnumValue($1.one),",
+			"        new EnumValue($1.two),",
+			"        new EnumValue($1.three)",
+			"    ]; }",
+			"",
+			"    static parse(pString) {",
+			"        return Enum.parse(pString, $1.values, $1.name);",
+			"    }",
+			"}",
+			"",
+			"module.exports = $1;"			
+		]
+	}
+}

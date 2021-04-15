@@ -4,12 +4,15 @@
  * @version 0.0.1 (2021-04-06)
  */
 
+const path = require("path");
+
 const ApplicationInformation = require("./applicationInformation");
 const ArgName = require("../args/argName");
 const Args = require("../args/args");
 const ArgTemplateFactory = require("../args/argTemplateFactory");
 const ConsoleLogger = require("../logging/consoleLogger");
 const IconConverter = require("../conversion/iconConverter");
+const Settings = require("../settings/settings");
 
 require("../general/javaScript");
 
@@ -17,12 +20,14 @@ class Application {
     get information() { return ApplicationInformation.read(this); }
     get rootFolderPath() { return this.mRootFolderPath; }
     get args() { return this.mArgs; }
+    get settings() { return this.mSettings; }
     get logger() { return this.mLogger; }
     get debugMode() { return this.mDebugMode; }
 
     constructor(pRootFolderPath, pArgValues) {        
         this.mRootFolderPath = String.validate(pRootFolderPath);
         this.mArgs = this.initialiseArgs(pArgValues);
+        this.mSettings = this.initialiseSettings();
         this.mLogger = this.initialiseLogger();
         this.mDebugMode = this.initialiseDebugMode();
     }
@@ -30,6 +35,11 @@ class Application {
     initialiseArgs(pArgValues) {
         const argTemplates = ArgTemplateFactory.create();
         return Args.parse(pArgValues, argTemplates);
+    }
+
+    initialiseSettings() {
+        const settingsFilePath = this.args.get(ArgName.settingsFilePath, path.join(this.rootFolderPath, "settings.json"));
+        return Settings.read(settingsFilePath);
     }
 
     initialiseLogger() {
@@ -69,20 +79,7 @@ class Application {
     }
     
     async runLogic() {
-        const sourceFolderPath = this.args.get(ArgName.sourceFolderPath);
-        const sourceFileMask = this.args.get(ArgName.sourceFileMask, "*.*");
-        const minimumColourDepth = this.args.get(ArgName.minimumColourDepth, 8);
-        const destinationFolderPath = this.args.get(ArgName.destinationFolderPath);
-        const destinationFolderNamePattern = this.args.get(ArgName.destinationFolderNamePattern, "");
-        const destinationFileType = this.args.get(ArgName.destinationFileType);
-        const destinationFileNamePattern = this.args.get(ArgName.destinationFileNamePattern, "");
-        const ignoreNonSquareImages = this.args.get(ArgName.ignoreNonSquareImages, false);
-        const createIndex = this.args.get(ArgName.createIndex, false); 
-        const indexFileName = this.args.get(ArgName.indexFileName, "index.theme");
-        const indexNamePattern = this.args.get(ArgName.indexNamePattern, "");
-        const iconConverter = new IconConverter(sourceFolderPath, sourceFileMask, minimumColourDepth, destinationFolderPath, 
-            destinationFolderNamePattern, destinationFileType, destinationFileNamePattern, ignoreNonSquareImages, createIndex, 
-            indexFileName, indexNamePattern);
+        const iconConverter = new IconConverter();
         await iconConverter.run();
     }
 
