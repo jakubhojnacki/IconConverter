@@ -1,14 +1,13 @@
 /**
  * @module "Arg" class
  * @description Class representing one application argument
- * @version 0.0.1 (2021-02-17)
+ * @version 0.0.2 (2021-08-12)
  */
 
-require("../general/javaScript");
+import "../general/javaScript.js";
+import StringBuilder from "../general/stringBuilder.js";
 
-const StringBuilder = require("../general/stringBuilder");
-
-class Arg {
+export default class Arg {
     get template() { return this.mTemplate; }
     get name() { return this.mTemplate.name; }
     get dataType() { return this.mTemplate.dataType; }
@@ -26,5 +25,3 @@ class Arg {
         return StringBuilder.nameValue(this.name, this.value);
     }
 }
-
-module.exports = Arg;

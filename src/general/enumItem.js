@@ -1,12 +1,12 @@
 /**
  * @module "EnumItem" class
  * @description Representing one enum item
- * @version 0.0.2 (2021-04-06)
+ * @version 0.0.3 (2021-08-12)
  */
 
-require("./javaScript");
+import "./javaScript.js";
 
-class EnumItem {
+export default class EnumItem {
     get value() { return this.mValue; }
     get default() { return this.mDefault; }
     get inputs() { return this.mInputs; }
@@ -37,5 +37,3 @@ class EnumItem {
         return result;
     }
 }
-
-module.exports = EnumItem;

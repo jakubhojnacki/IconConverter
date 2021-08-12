@@ -1,6 +1,8 @@
-const Application = require("./src/application/application");
+import Application from "./src/application.js";
+import Node from "./src/general/node.js";
 
 (async () => {
-	global.application = new Application(__dirname, process.argv);
-	global.application.run();
+    global.theRoot = Node.getRoot(import.meta);
+	global.theApplication = new Application();
+	global.theApplication.run();
 })();

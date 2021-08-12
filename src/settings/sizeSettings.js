@@ -1,12 +1,12 @@
 /**
  * @module "SizeSettings" class
  * @description Represents settings containing size of an image
- * @version 0.0.1 (2021-04-15)
+ * @version 0.0.2 (2021-08-12)
  */
 
- require("../general/javaScript");
+import "../general/javaScript.js";
 
- class SizeSettings {
+export default class SizeSettings {
     get width() { return this.mWidth; }
     get height() { return this.mHeight; }
 
@@ -40,6 +40,5 @@
             value = SizeSettings.deserialise(pInput);
         return value;
     }
- }
+}
  
- module.exports = SizeSettings;

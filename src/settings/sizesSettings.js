@@ -1,14 +1,13 @@
 /**
  * @module "SizesSettings" class
  * @description An array of settings containing image sizes allowed
- * @version 0.0.1 (2021-04-15)
+ * @version 0.0.2 (2021-08-12)
  */
 
-const SizeSettings = require("./sizeSettings");
+import "../general/javaScript.js";
+import SizeSettings from "./sizeSettings.js";
 
-require("../general/javaScript");
-
-class SizesSettings extends Array {
+export default class SizesSettings extends Array {
     static get default() { return new SizesSettings(
         new SizeSettings(16, 16),
         new SizeSettings(24, 24),
@@ -62,5 +61,3 @@ class SizesSettings extends Array {
         return this.some(lItem => ((lItem.width === pWidth) && (lItem.height === pHeight)));
     }
 }
-
-module.exports = SizesSettings;

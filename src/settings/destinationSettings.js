@@ -1,28 +1,28 @@
 /**
  * @module "DestinationSettings" class
  * @description Represents settings containing destination properties
- * @version 0.0.1 (2021-04-15)
+ * @version 0.0.2 (2021-08-12)
  */
 
-require("../general/javaScript");
+import "../general/javaScript.js";
 
-class DestinationSettings {
-    get folderPath() { return this.mFolderPath; }
-    get folderNamePattern() { return this.mFolderNamePattern; }
+export default class DestinationSettings {
+    get sizeDirectoryNamePattern() { return this.mSizeDirectoryNamePattern; }
+    get directoryNamePattern() { return this.mDirectoryNamePattern; }
     get fileType() { return this.mFileType; }
     get fileNamePattern() { return this.mFileNamePattern; }
 
-    constructor(pFolderPath, pFolderNamePattern, pFileType, pFileNamePattern) {
-        this.mFolderPath = String.validate(pFolderPath);
-        this.mFolderNamePattern = String.validate(pFolderNamePattern);
+    constructor(pSizeDirectoryNamePattern, pDirectoryNamePattern, pFileType, pFileNamePattern) {
+        this.mSizeDirectoryNamePattern = String.validate(pSizeDirectoryNamePattern);
+        this.mDirectoryNamePattern = String.validate(pDirectoryNamePattern);
         this.mFileType = String.validate(pFileType, "png");
         this.mFileNamePattern = String.validate(pFileNamePattern);
     }
 
     serialise() {
         let data = {};
-        data.folderPath = this.folderPath;
-        data.folderNamePattern = this.folderNamePattern;
+        data.sizeDirectoryNamePattern = this.sizeDirectoryNamePattern;
+        data.directoryNamePattern = this.directoryNamePattern;
         data.fileType = this.fileType;
         data.fileNamePattern = this.fileNamePattern;
         return data;
@@ -31,7 +31,7 @@ class DestinationSettings {
     static deserialise(pData) {
         let object = null;
         if (pData != null)
-            object = new DestinationSettings(pData.folderPath, pData.folderNamePattern, pData.fileType, pData.fileNamePattern);
+            object = new DestinationSettings(pData.sizeDirectoryNamePattern, pData.directoryNamePattern, pData.fileType, pData.fileNamePattern);
         return object;
     }
 
@@ -45,5 +45,3 @@ class DestinationSettings {
         return value;
     }
 }
-
-module.exports = DestinationSettings;

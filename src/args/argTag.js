@@ -1,12 +1,12 @@
 /**
  * @module "ArgTag" class
  * @description Class for manipulating tags
- * @version 0.0.2 (2021-04-06)
+ * @version 0.0.3 (2021-08-12)
  */
 
-require("../general/javaScript");
+import "../general/javaScript.js";
 
-class ArgTag {
+export default class ArgTag {
     get value() { return this.mValue; }
 
     constructor(pValue) {
@@ -73,5 +73,3 @@ class ArgTag {
         return string;        
     }
 }
-
-module.exports = ArgTag;

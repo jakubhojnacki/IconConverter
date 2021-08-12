@@ -1,9 +1,10 @@
 {
   "name": "icon-converter",
   "displayName": "Icon Converter",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Tool to convert icons from ICO to PNG",
-  "date": "April 2021",
+  "date": "August 2021",
+  "type": "module",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

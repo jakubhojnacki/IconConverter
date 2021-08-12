@@ -1,35 +1,40 @@
 /**
  * @module "Args" class
  * @description Parses and manages application arguments
- * @version 0.0.1 (2021-02-17)
+ * @version 0.0.2 (2021-08-12)
  */
 
-require("../general/javaScript");
+import "../general/javaScript.js";
+import Arg from "./arg.js";
+import ArgTemplateFactory from "./argTemplateFactory.js";
 
-const Arg = require("./arg");
-const DataType = require("../general/dataType");
+export default class Args extends Array {
+    get argTemplates() { return this.mArgTemplates; }
 
-class Args extends Array {
     constructor() {
         super();
+        this.mArgTemplates = ArgTemplateFactory.argTemplates;
     }
 
-    static parse(pArgValues, pArgTemplates) {
+    static parse() {
+        let argValues = process.argv;
         let args = new Args();
         let index = -1;
         let tag = "";
         let argTemplate = null;
-        for (let argValue of pArgValues) {
+        argValues.shift();
+        argValues.shift();
+        for (let argValue of argValues) {
             argValue = argValue.trim().removeIfStartsWith("\"").removeIfEndsWith("\"");
             if (argValue.startsWith("-")) {
                 tag = argValue.substr(1);
-                argTemplate = pArgTemplates.get(tag);
+                argTemplate = args.argTemplates.get(tag);
             } else if (argTemplate != null) {
                 args.add(argTemplate, argValue);
                 argTemplate = null;
             } else {
                 index++;
-                argTemplate = pArgTemplates.get(index);
+                argTemplate = args.argTemplates.get(index);
                 if (argTemplate != null) {
                     args.add(argTemplate, argValue);
                     argTemplate = null;
@@ -44,9 +49,9 @@ class Args extends Array {
         this.push(new Arg(pArgTemplate, argValue));
     }
 
-    validate(pArgTemplates, pOnInvalid) {
+    validate() {
         let result = true;
-        for (const argTemplate of pArgTemplates)
+        for (const argTemplate of this.argTemplates)
             if (argTemplate.isMandatory(this)) {
                 const arg = this.find((lArg) => { return lArg.name === argTemplate.name; });
                 if (arg) {
@@ -56,8 +61,22 @@ class Args extends Array {
                     result = false;
             }
         if (!result)
-            pOnInvalid(pArgTemplates, this);
+            this.reportInvalid();
         return result;
+    }
+
+    reportInvalid() {
+        const logger = global.theApplication.logger;
+        let indentation = logger.tab;
+        logger.writeLine("Application args:", indentation);
+        for (const argTemplate of this.argTemplates) {
+            logger.writeLine(argTemplate.toString(this), indentation);
+            const arg = this.find((lArg) => { return lArg.name === argTemplate.name; });
+            if (arg != null)
+                logger.writeLine(`Passed: ${arg.value}; Valid: ${arg.valid}.`, indentation + logger.tab);
+            else
+                logger.writeLine("Not passed.", indentation + logger.tab);
+        }
     }
 
     get(pName, pDefaultValue) {
@@ -74,12 +93,10 @@ class Args extends Array {
     }
 
     log(pIndentation) {
-        const logger = global.application.logger;
+        const logger = global.theApplication.logger;
         let indentation = Number.validate(pIndentation);
-        logger.writeText("Args:", indentation);
+        logger.writeLine("Args:", indentation);
         for (const arg of this)
-            logger.writeText(arg.toString(), indentation + logger.tab);
+            logger.writeLine(arg.toString(), indentation + logger.tab);
     }
 }
-
-module.exports = Args;

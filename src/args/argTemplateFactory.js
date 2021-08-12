@@ -1,22 +1,21 @@
 /** 
  * @module "ArgTemplateFactory" class (static)
  * @description Creates arg templates
- * @version 0.0.1 (2021-02-24)
+ * @version 0.0.2 (2021-08-12)
  */
 
-require("../general/javaScript");
+import "../general/javaScript.js";
+import ArgName from "./argName.js";
+import ArgTemplate from "./argTemplate.js";
+import ArgTemplates from "./argTemplates.js";
+import DataType from "../general/dataType.js";
 
-const ArgName = require("./argName");
-const ArgTemplate = require("./argTemplate");
-const ArgTemplates = require("./argTemplates");
-const DataType = require("../general/dataType");
-
-/*static*/ class ArgTemplateFactory {
-    static create() {
+export default class ArgTemplateFactory {
+    static get argTemplates() {
         return new ArgTemplates([
+            new ArgTemplate(0, ArgName.sourceDirectoryPath, "Path to source directory", DataType.string, true),
+            new ArgTemplate(1, ArgName.destinationDirectoryPath, "Path to destination directory", DataType.string, true),
             new ArgTemplate([ "s", "settingsFilePath" ], ArgName.settingsFilePath, "Path to settings file", DataType.string)
         ]);        
     }
 }
-
-module.exports = ArgTemplateFactory;

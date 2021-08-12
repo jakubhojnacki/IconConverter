@@ -1,16 +1,14 @@
 /**
  * @module "ArgTemplate" class
  * @description Class defaining a template for one application argument
- * @version 0.0.2 (2021-04-06)
+ * @version 0.0.3 (2021-08-12)
  */
 
-require("../general/javaScript");
+import "../general/javaScript.js";
+import ArgTag from "./argTag.js";
+import DataType from "../general/dataType.js";
 
-const ArgTag = require("./argTag");
-const DataType = require("../general/dataType");
-const StringBuilder = require("../general/stringBuilder");
-
-class ArgTemplate {
+export default class ArgTemplate {
     get tag() { return this.mTag; }
     get name() { return this.mName; }
     get description() { return this.mDescription; }
@@ -60,5 +58,3 @@ class ArgTemplate {
         return parsedValue;
     }
 }
-
-module.exports = ArgTemplate;

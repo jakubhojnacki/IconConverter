@@ -1,7 +1,7 @@
 /**
  * @module JavaScript extensions
  * @description A series of useful language extensions
- * @version 0.0.6 (2021-04-13)
+ * @version 0.0.7 (2021-08-12)
  */
 
 Array.isNonEmpty = function(pArray) {
@@ -139,6 +139,17 @@ Number.compare = function(pNumber) {
 	else if (thisValue < pNumber)
 		result = -1;
 	return result;
+}
+
+Number.prototype.formatWithLeadingZeros = function(pLength) {
+    let result = this.valueOf().toString();
+    const length = Number.validate(pLength, 0);
+    if (length > 0) {
+        const noOfZeros = pLength - result.length;
+        if (noOfZeros > 0)
+            result = "0".repeat(noOfZeros) + result;
+    }
+    return result;
 }
 
 Number.nonEmpty = function(pValue, pDefault) {

@@ -1,12 +1,12 @@
 /**
  * @module "Enum" class
  * @description Enum helper class (static)
- * @version 0.0.3 (2021-04-06)
+ * @version 0.0.4 (2021-08-12)
  */
 
-require("./javaScript");
+import "./javaScript.js";
 
-/*static*/ class Enum {
+export default class Enum {
     static findItem(pString, pEnumItems, pEnumName) {
         const string = String.validate(pString, false).trim().toLowerCase();
         let enumItem = null;
@@ -29,5 +29,3 @@ require("./javaScript");
         return Object.validate(enumItem.output, enumItem.value);
     }
 }
-
-module.exports = Enum;

@@ -4,9 +4,9 @@
  * @version 0.0.1 (2021-02-20)
  */
 
-require("./javaScript");
+import "./javaScript.js";
 
-class StringBuilder {
+export default class StringBuilder {
     get multiLine() { return this.mMultiLine; }
     get content() { return this.mContent; }
     set content(pValue) { this.mContent = pValue; }
@@ -37,5 +37,3 @@ class StringBuilder {
         return this.content;
     }
 }
-
-module.exports = StringBuilder;

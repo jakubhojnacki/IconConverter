@@ -1,10 +1,10 @@
 /**
  * @module "FileMask" class
- * @description Matches file system name (file / folder name) to a mask
- * @version 0.0.3 (2021-04-11)
+ * @description Matches file system name (file / directory name) to a mask
+ * @version 0.0.4 (2021-08-12)
  */
 
-class FileMask {
+export default class FileMask {
 	get mask() { return this.mMask; }
 	get regExp() { return this.mRegExp; }
 
@@ -31,5 +31,3 @@ class FileMask {
 		return this.mask;
 	}
 }
-
-module.exports = FileMask;

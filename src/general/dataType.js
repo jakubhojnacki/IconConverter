@@ -1,15 +1,14 @@
 /**
  * @module "DataType" class (static)
  * @description Enumeratos and manages data types
- * @version 0.0.2 (2021-02-19)
+ * @version 0.0.3 (2021-08-12)
  */
 
-require("./javaScript");
+import "./javaScript.js";
+import Enum from "./enum.js";
+import EnumItem from "./enumItem.js";
 
-const Enum = require("./enum");
-const EnumItem = require("./enumItem");
-
-/*static*/ class DataType {
+export default class DataType {
     static get boolean() { return "Boolean"; }
     static get integer() { return "Integer"; }
     static get float() { return "Float"; }
@@ -64,5 +63,3 @@ const EnumItem = require("./enumItem");
         return value;
     }
 }
-
-module.exports = DataType;

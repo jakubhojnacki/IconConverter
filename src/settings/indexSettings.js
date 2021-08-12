@@ -1,12 +1,12 @@
 /**
  * @module "IndexSettings" class
  * @description Represents settings regarding index
- * @version 0.0.1 (2021-04-15)
+ * @version 0.0.2 (2021-08-12)
  */
 
-require("../general/javaScript");
+import "../general/javaScript.js";
 
-class IndexSettings {
+export default class IndexSettings {
     get create() { return this.mCreate; }
     get fileName() { return this.mFileName; }
     get namePattern() { return this.mNamePattern; }
@@ -42,5 +42,3 @@ class IndexSettings {
         return value;
     }    
 }
-
-module.exports = IndexSettings;

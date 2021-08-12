@@ -8,7 +8,11 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/test.js"
+            "program": "${workspaceFolder}/main.js",
+            "args": [  
+                "C:\\Multimedia\\Icons",
+                "C:\\Temp"
+            ]
         }
     ]
 }

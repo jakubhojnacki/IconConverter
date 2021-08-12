@@ -1,18 +1,16 @@
 /**
  * @module "Settings" class
  * @description Keeps application settings
- * @version 0.0.1 (2021-02-24)
+ * @version 0.0.2 (2021-08-12)
  */
 
-const fs = require("fs");
+import "../general/javaScript.js";
+import DestinationSettings from "./destinationSettings.js";
+import FileSystem from "fs";
+import IndexSettings from "./indexSettings.js";
+import SourceSettings from "./sourceSettings.js";
 
-require("../general/javaScript");
-
-const DestinationSettings = require("./destinationSettings");
-const IndexSettings = require("./indexSettings");
-const SourceSettings = require("./sourceSettings");
-
-class Settings {
+export default class Settings {
     get source() { return this.mSource; }
     get destination() { return this.mDestination; }
     get index() { return this.mIndex; }
@@ -47,10 +45,8 @@ class Settings {
     }
 
     static read(pSettingsFilePath) {
-        const rawData = fs.readFileSync(pSettingsFilePath);
+        const rawData = FileSystem.readFileSync(pSettingsFilePath);
         const data = JSON.parse(rawData);
         return Settings.deserialise(data);
     }    
 }
-
-module.exports = Settings;

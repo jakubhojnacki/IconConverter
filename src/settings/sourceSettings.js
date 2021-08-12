@@ -4,19 +4,16 @@
  * @version 0.0.1 (2021-04-15)
  */
 
-const FileMask = require("../conversion/fileMask");
-const SizesSettings = require("./sizesSettings");
+import "../general/javaScript.js";
+import FileMask from "../engine/fileMask.js";
+import SizesSettings from "./sizesSettings.js";
 
-require("../general/javaScript");
-
-class SourceSettings {
-    get folderPath() { return this.mFolderPath; }
+export default class SourceSettings {
     get fileMask() { return this.mFileMask; }
     get minimumColourDepth() { return this.mMinimumColourDepth; }
     get sizes() { return this.mSizes; }
 
-    constructor(pFolderPath, pFileMask, pMinimumColourDepth, pSizes) {
-        this.mFolderPath = String.validate(pFolderPath);
+    constructor(pFileMask, pMinimumColourDepth, pSizes) {
         this.mFileMask = new FileMask(String.validate(pFileMask));
         this.mMinimumColourDepth = String.validate(pMinimumColourDepth, 8);
         this.mSizes = SizesSettings.validate(pSizes);
@@ -24,7 +21,6 @@ class SourceSettings {
 
     serialise() {
         let data = {};
-        data.folderPath = this.folderPath;
         data.fileMask = this.fileMask.toString();
         data.minimumColourDepth = this.minimumColourDepth;
         data.sizes = this.sizes.serialise();
@@ -35,7 +31,7 @@ class SourceSettings {
         let object = null;
         if (pData != null) {
             const sizes = SizesSettings.deserialise(pData.sizes);
-            object = new SourceSettings(pData.folderPath, pData.fileMask, pData.minimumColourDepth, sizes);
+            object = new SourceSettings(pData.fileMask, pData.minimumColourDepth, sizes);
         }
         return object;
     }
@@ -50,5 +46,3 @@ class SourceSettings {
         return value;
     }
 }
-
-module.exports = SourceSettings;
