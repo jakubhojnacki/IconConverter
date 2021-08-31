@@ -10,8 +10,8 @@
             ],
             "program": "${workspaceFolder}/main.js",
             "args": [  
-                "/home/Multimedia/Icons (ICO)",
-                "/home/Temp"
+                "C:\\Multimedia\\Icons",
+                "C:\\Temp"
             ]
         }
     ]
