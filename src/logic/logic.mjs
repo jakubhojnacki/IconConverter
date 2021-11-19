@@ -10,6 +10,7 @@ import FileMask from "./fileMask.js";
 import FileSystem from "fs";
 import IconIndex from "./iconIndex.js";
 import ImageMagickRunner from "./imageMagickRunner.js";
+import { Validator } from "core-library";
 
 export class Logic {
     get application() { return this.mApplication; }
@@ -38,11 +39,26 @@ export class Logic {
             this.settings.index.namePattern);
     }
 
+    async run() {
+        this.validate();
+        this.iconIndex.initialise();
+        this.makeSureDirectoryExists(this.temporaryDirectoryPath);
+        await this.processDirectory(this.sourceDirectoryPath, "/", "", 0);
+        this.makeSureDirectoryIsDeleted(this.temporaryDirectoryPath);
+        this.iconIndex.finalise();
+    }
+
     validate() {
-        if (!this.sourceDirectoryPath)
-            throw new Error("Empty source directory path.");
+        let result = false;
+        const validator = new Validator();
+        validator.setComponent(Logic.name);
+        validator.testNotEmptY("sourceDirectoryPath", this.sourceDirectoryPath);
+        validator.testNotEmptY("destinationDirectoryPath", this.destinationDirectoryPath);
+
+        /*TODO - Resolve
         if (!this.settings.source.fileMask)
             throw new Error("Empty source file mask.");
+        */
         if ((!this.settings.source.sizes) || (this.settings.source.sizes.length === 0))
             throw new Error("No sizes have been defined.");
         if (!this.destinationDirectoryPath)
@@ -54,15 +70,6 @@ export class Logic {
                 throw new Error("Empty index file name.");
     }    
     
-    async run() {
-        this.validate();
-        this.iconIndex.initialise();
-        this.makeSureDirectoryExists(this.temporaryDirectoryPath);
-        await this.processDirectory(this.sourceDirectoryPath, "/", "", 0);
-        this.makeSureDirectoryIsDeleted(this.temporaryDirectoryPath);
-        this.iconIndex.finalise();
-    }
-
     async processDirectory(pSourceDirectoryPath, pSourceDirectoryName, pDestinationDirectorySubPath, pIndentation) {
         this.logger.writeLine(`[${pSourceDirectoryName}]`, pIndentation * this.logger.tab);
 		const sourceDirectoryEntries = FileSystem.readdirSync(pSourceDirectoryPath, { withFileTypes: true });
