@@ -1,10 +1,14 @@
 /**
- * @module "ArgName" class (static)
- * @description Class representing argument names
- * @version 0.0.2 (2021-08-12)
+ * @module "ArgName" class
+ * @description 
  */
 
-export default class ArgName {
+"use strict"
+
+import { Enum } from "core-library";
+import { EnumItem } from "core-library";
+ 
+export class ArgName {
     static get sourceDirectoryPath() { return "SourceDirectoryPath"; }
     static get destinationDirectoryPath() { return "DestinationDirectoryPath"; }
     static get settingsFilePath() { return "SettingsFilePath"; }
@@ -15,7 +19,12 @@ export default class ArgName {
         new EnumItem(ArgName.settingsFilePath)
     ]; }
 
-    static parse(pString) {
-        return Enum.parse(pString, ArgName.items, ArgName.name);
-    }    
+
+    static parse(pText) {
+        return Enum.parse(pText, ArgName.values, ArgName.name);
+    }
+
+    static toString(pValue) {
+        return Enum.toString(pValue, ArgName.values, ArgName.name);
+    }
 }

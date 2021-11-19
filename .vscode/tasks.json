@@ -1,0 +1,83 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Test",
+            "type": "shell",            
+            "command": "node",
+            "args": [
+                "${workspaceFolder}/test/test.mjs"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",                
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },        
+        {
+            "label": "Install Node JS modules",
+            "type": "shell",            
+            "command": "npm install",
+            "options": {
+                "cwd": "${workspaceFolder}",                
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Update Node JS modules",
+            "type": "shell",
+            "command": "npm update",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Add local Node JS module",
+            "type": "shell",
+            "command": "npm i \"${input:modulePath}\" --save",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },                        
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "modulePath",
+            "type": "promptString",
+            "description": "Path to Node JS module to add"
+        }
+    ]
+}

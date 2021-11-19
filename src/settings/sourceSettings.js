@@ -5,7 +5,7 @@
  */
 
 import "../general/javaScript.js";
-import FileMask from "../engine/fileMask.js";
+import FileMask from "../logic/fileMask.js";
 import SizesSettings from "./sizesSettings.js";
 
 export default class SourceSettings {

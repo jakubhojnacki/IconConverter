@@ -4,15 +4,14 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Test",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/main.js",
-            "args": [  
-                "/home/Multimedia/Icons (ICO)",
-                "/home/Temp"
-            ]
+            "program": "${workspaceFolder}/src/main.mjs",
+            "args": [
+            ],
+            "console": "internalConsole"
         }
     ]
 }

@@ -4,30 +4,34 @@
  * @version 0.0.2 (2021-08-12)
  */
 
-import "../general/javaScript.js";
-import ArgName from "../args/argName.js";
+import Path from "path";
+
 import FileMask from "./fileMask.js";
 import FileSystem from "fs";
 import IconIndex from "./iconIndex.js";
 import ImageMagickRunner from "./imageMagickRunner.js";
-import Path from "path";
 
-export default class Engine {
-    get application() { return global.theApplication; }
-    get logger() { return global.theApplication.logger; }
-    get settings() { return global.theApplication.settings; }
+export class Logic {
+    get application() { return this.mApplication; }
+    set application(pValue) { this.mApplication = pValue; }
     get sourceDirectoryPath() { return this.mSourceDirectoryPath; }
+    set sourceDirectoryPath(pValue) { this.mSourceDirectoryPath = String.verify(pValue); }
     get destinationDirectoryPath() { return this.mDestinationDirectoryPath; }
+    set destinationDirectoryPath(pValue) { this.mDestinationDirectoryPath = String.verify(pValue); }
+    get temporaryDirectoryPath() { return this.mTemporaryDirectoryPath; }
+    set temporaryDirectoryPath(pValue) { this.mTemporaryDirectoryPath = String.verify(pValue); }
+    
     get temporaryDirectoryPath() { return this.mTemporaryDirectoryPath; }
     get temporaryFileMask() { return this.mTemporaryFileMask; }
     get imageMagickRunner() { return this.mImageMagickRunner; }
     get iconIndex() { return this.mIconIndex; }
 
-    constructor() {
-        this.mSourceDirectoryPath = this.application.args.get(ArgName.sourceDirectoryPath);
-        this.mDestinationDirectoryPath = this.application.args.get(ArgName.destinationDirectoryPath);
-        this.validate();
-        this.mTemporaryDirectoryPath = Path.join(this.sourceDirectoryPath, "__temp");
+    constructor(pApplication, pSourceDirectoryPath, pDestinationDirectoryPath) {
+        this.application = pApplication;
+        this.sourceDirectoryPath = pSourceDirectoryPath;
+        this.destinationDirectoryPath = pDestinationDirectoryPath;
+        this.temporaryDirectoryPath = Path.join(this.destinationDirectoryPath, ".temp");
+
         this.mTemporaryFileMask = new FileMask(`*.${this.settings.destination.fileType}`);
         this.mImageMagickRunner = new ImageMagickRunner();
         this.mIconIndex = new IconIndex(this.settings.index.create, this.destinationDirectoryPath, this.settings.index.fileName, 
@@ -51,6 +55,7 @@ export default class Engine {
     }    
     
     async run() {
+        this.validate();
         this.iconIndex.initialise();
         this.makeSureDirectoryExists(this.temporaryDirectoryPath);
         await this.processDirectory(this.sourceDirectoryPath, "/", "", 0);
