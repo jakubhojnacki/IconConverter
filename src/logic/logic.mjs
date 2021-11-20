@@ -50,24 +50,12 @@ export class Logic {
 
     validate() {
         let result = false;
-        const validator = new Validator();
+        const validator = new ConsoleValidator();
         validator.setComponent(Logic.name);
-        validator.testNotEmptY("sourceDirectoryPath", this.sourceDirectoryPath);
-        validator.testNotEmptY("destinationDirectoryPath", this.destinationDirectoryPath);
-
-        /*TODO - Resolve
-        if (!this.settings.source.fileMask)
-            throw new Error("Empty source file mask.");
-        */
-        if ((!this.settings.source.sizes) || (this.settings.source.sizes.length === 0))
-            throw new Error("No sizes have been defined.");
-        if (!this.destinationDirectoryPath)
-            throw new Error("Empty destination directory path.");
-        if (!this.settings.destination.fileType)
-            throw new Error("Empty destination file type.");
-        if (this.settings.index.create)
-            if (!this.settings.index.fileName)
-                throw new Error("Empty index file name.");
+        validator.testNotEmpty("sourceDirectoryPath", this.sourceDirectoryPath);
+        validator.testNotEmpty("destinationDirectoryPath", this.destinationDirectoryPath);
+        validator.restoreComponent();
+        return result;
     }    
     
     async processDirectory(pSourceDirectoryPath, pSourceDirectoryName, pDestinationDirectorySubPath, pIndentation) {

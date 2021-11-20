@@ -38,11 +38,5 @@
         "directoryNamePattern": "",
         "fileType": "png",
         "fileNamePattern": "{0}"
-    },
-    "index": {
-        "create": false,
-        "fileName": "index.theme",
-        "namePattern": "{0} (Custom)"
-    },
-    "debugMode": true
+    }
 }

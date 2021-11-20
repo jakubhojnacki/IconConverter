@@ -1,13 +1,13 @@
 /**
  * @module "SizesSettings" class
  * @description An array of settings containing image sizes allowed
- * @version 0.0.2 (2021-08-12)
  */
 
-import "../general/javaScript.js";
-import SizeSettings from "./sizeSettings.js";
+"use strict";
 
-export default class SizesSettings extends Array {
+import { SizeSettings } from "../settings/sizeSettings.mjs";
+
+export class SizesSettings extends Array {
     static get default() { return new SizesSettings(
         new SizeSettings(16, 16),
         new SizeSettings(24, 24),
@@ -27,35 +27,28 @@ export default class SizesSettings extends Array {
                     this.push(item);
     }
 
-    serialise() {
+    validate(pValidator) {
+        pValidator.setComponent(SizesSettings.name);
+        for (const item of this)
+            item.validate(pValidator);
+        pValidator.restoreComponent();
+    }
+
+    toData() {
         let data = [];
         for (const item of this)
             data.push(item.serialise());
         return data;
     }
 
-    static deserialise(pData) {
-        let object = null;
-        if (Array.isArray(pData)) {
-            object = new SizesSettings();
+    fromData(pData) {
+        if (Array.isArray(pData))
             for (const dataItem of pData) {
                 const item = SizeSettings.deserialise(dataItem);
-                object.push(item);
+                this.push(item);
             }
-        }
-        return object;
+        return this;
     }    
-
-    static validate(pInput) {
-        let value = null;
-        if (pInput instanceof SizesSettings) {
-            value = pInput;
-            for (let index = 0; index < value.length; index++)
-                value[index] = SizeSettings.validate(value[index]);            
-        } else
-            value = SizesSettings.deserialise(pInput);
-        return value;
-    }
 
     containsSize(pWidth, pHeight) {
         return this.some(lItem => ((lItem.width === pWidth) && (lItem.height === pHeight)));
