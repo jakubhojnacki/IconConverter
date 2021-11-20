@@ -10,6 +10,8 @@
             ],
             "program": "${workspaceFolder}/src/main.mjs",
             "args": [
+                "/home/Temp/From",
+                "/home/Temp/To"
             ],
             "console": "internalConsole"
         }

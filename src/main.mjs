@@ -5,7 +5,7 @@
 
 "use strict"
 
-import { Application } from "../application/application.mjs";
+import { Application } from "./application/application.mjs";
 import { Node } from "core-library";
 
 (() => {

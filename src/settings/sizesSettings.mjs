@@ -44,7 +44,7 @@ export class SizesSettings extends Array {
     fromData(pData) {
         if (Array.isArray(pData))
             for (const dataItem of pData) {
-                const item = SizeSettings.deserialise(dataItem);
+                const item = (new SizeSettings()).fromData(dataItem);
                 this.push(item);
             }
         return this;

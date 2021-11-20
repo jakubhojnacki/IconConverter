@@ -1,146 +1,186 @@
 /**
  * @module "Engine" class
  * @description Runs main application task(s)
- * @version 0.0.2 (2021-08-12)
  */
+
+"use strict";
 
 import Path from "path";
 
-import FileMask from "./fileMask.js";
-import FileSystem from "fs";
-import IconIndex from "./iconIndex.js";
-import ImageMagickRunner from "./imageMagickRunner.js";
-import { Validator } from "core-library";
+import { FileSystemItem } from "file-system-library";
+import { FileSystemItemType } from "file-system-library";
+import { FileSystemToolkit } from "file-system-library";
+import { ImageProcessorFactory } from "image-library";
+import { LogicEventArgs } from "../logic/logicEventArgs.mjs";
+import { LogicFileCountEventArgs } from "../logic/logicFileCountEventArgs.mjs";
+import { LogicFileSystemItemEventArgs } from "../logic/logicFileSystemItemEventArgs.mjs";
 
 export class Logic {
     get application() { return this.mApplication; }
     set application(pValue) { this.mApplication = pValue; }
+    get settings() { return this.application.settings; }
+
     get sourceDirectoryPath() { return this.mSourceDirectoryPath; }
     set sourceDirectoryPath(pValue) { this.mSourceDirectoryPath = String.verify(pValue); }
     get destinationDirectoryPath() { return this.mDestinationDirectoryPath; }
     set destinationDirectoryPath(pValue) { this.mDestinationDirectoryPath = String.verify(pValue); }
     get temporaryDirectoryPath() { return this.mTemporaryDirectoryPath; }
     set temporaryDirectoryPath(pValue) { this.mTemporaryDirectoryPath = String.verify(pValue); }
-    
-    get temporaryDirectoryPath() { return this.mTemporaryDirectoryPath; }
-    get temporaryFileMask() { return this.mTemporaryFileMask; }
-    get imageMagickRunner() { return this.mImageMagickRunner; }
 
+    get imageProcessor() { return this.mImageProcessor; }
+    set imageProcessor(pValue) { this.mImageProcessor = pValue; }
+    
+    get onInitialise() { return this.mOnInitialise; }
+    set onInitialise(pValue) { this.mOnInitialise = pValue; }
+    get onDirectory() { return this.mOnDirectory; }
+    set onDirectory(pValue) { this.mOnDirectory = pValue; }
+    get onFile() { return this.mOnFile; }
+    set onFile(pValue) { this.mOnFile = pValue; }
+    get onFinalise() { return this.mOnFinalise; }
+    set onFinalise(pValue) { this.mOnFinalise = pValue; }
+    
     constructor(pApplication, pSourceDirectoryPath, pDestinationDirectoryPath) {
         this.application = pApplication;
+
         this.sourceDirectoryPath = pSourceDirectoryPath;
         this.destinationDirectoryPath = pDestinationDirectoryPath;
-        this.temporaryDirectoryPath = Path.join(this.destinationDirectoryPath, ".temp");
+        this.temporaryDirectoryPath = Path.join(this.destinationDirectoryPath, "__Temp");
 
-        this.mTemporaryFileMask = new FileMask(`*.${this.settings.destination.fileType}`);
-        this.mImageMagickRunner = new ImageMagickRunner();
+        this.imageProcessor = ( new ImageProcessorFactory()).create(this.settings.imageProcessor.type, this.settings.imageProcessor.path, this.application.rootDirectoryPath);
+
+        this.onInitialise = null;
+        this.onDirectory = null;
+        this.onFile = null;
+        this.onFinalise = null;
     }
 
     async run() {
-        this.makeSureDirectoryExists(this.temporaryDirectoryPath);
-        await this.processDirectory(this.sourceDirectoryPath, "/", "", 0);
-        this.makeSureDirectoryIsDeleted(this.temporaryDirectoryPath);
+        this.initialise();
+        await this.process();
+        this.finalise();
     }
 
-    async processDirectory(pSourceDirectoryPath, pSourceDirectoryName, pDestinationDirectorySubPath, pIndentation) {
-        this.logger.writeLine(`[${pSourceDirectoryName}]`, pIndentation * this.logger.tab);
-		const sourceDirectoryEntries = FileSystem.readdirSync(pSourceDirectoryPath, { withFileTypes: true });
-		for (const sourceDirectoryEntry of sourceDirectoryEntries) {
-            if (sourceDirectoryEntry.isDirectory()) {
-                const sourceSubDirectoryPath = Path.join(pSourceDirectoryPath, sourceDirectoryEntry.name);
-                const destinationSubDirectoryName = this.convertSourceToDestinationDirectoryName(sourceDirectoryEntry.name);
-                const destinationSubDirectoryPath = Path.join(pDestinationDirectorySubPath, destinationSubDirectoryName);
-                await this.processDirectory(sourceSubDirectoryPath, sourceDirectoryEntry.name, destinationSubDirectoryPath, pIndentation + 1);
-            } else if (sourceDirectoryEntry.isFile())
-				if (this.settings.source.fileMask.contains(sourceDirectoryEntry.name)) {
-                    const sourceFilePath = Path.join(pSourceDirectoryPath, sourceDirectoryEntry.name);
-                    await this.processFile(pSourceDirectoryName, sourceFilePath, sourceDirectoryEntry.name, pDestinationDirectorySubPath, pIndentation + 1);
-                }
+    initialise() {
+        let fileCount = this.countFilesInDirectory(this.sourceDirectoryPath, 0);
+        if (this.onInitialise)
+            this.onInitialise(new LogicFileCountEventArgs(this, fileCount));
+    }
+
+    countFilesInDirectory(pPath, pFileCount) {
+        let fileCount = pFileCount;
+        const items = FileSystemToolkit.readDirectory(pPath, this.settings.source.filter);
+        for (const item of items) {
+            switch (item.type) {
+                case FileSystemItemType.directory:
+                    fileCount = this.countFilesInDirectory(item.path, fileCount);
+                    break;
+                case FileSystemItemType.file:
+                    fileCount++;
+                    break;
+            }
         }
+        return fileCount;
+    }
+
+    async process() {
+        const sourceDirectory = new FileSystemItem(FileSystemItemType.directory, this.sourceDirectoryPath);
+        await this.processDirectory(sourceDirectory, "", "", 0);
+    }
+
+    async processDirectory(pSourceDirectory, pDestinationSubPath, pIndentation) {
+        if (this.onDirectory)
+            this.onDirectory(new LogicFileSystemItemEventArgs(this, pSourceDirectory, pIndentation));
+		const sourceDirectoryItems = FileSystemToolkit.readDirectory(pSourceDirectory.path, this.settings.source.filter);
+		for (const sourceDirectoryItem of sourceDirectoryItems)
+            switch (sourceDirectoryItem.type) {
+                case FileSystemItemType.directory: {
+                    const destinationbDirectoryName = this.createDestinationDirectoryName(sourceDirectoryItem.name);
+                    const destinationSubPath = Path.join(pDestinationSubPath, destinationbDirectoryName);
+                    await this.processDirectory(sourceDirectoryItem, destinationSubPath, pIndentation + 1);
+                } break;
+                case FileSystemItemType.file:
+                    await this.processFile(sourceDirectoryItem, pDestinationSubPath, pIndentation + 1);
+                    break;
+            }
     }  
 
-    convertSourceToDestinationDirectoryName(pSourceDirectoryName) {
-        let destinationDirectoryName =  pSourceDirectoryName;
+    createDestinationDirectoryName(pSourceDirectory) {
+        let destinationDirectoryName =  pSourceDirectory.name;
         if (this.settings.destination.directoryNamePattern) {
-            const linuxCaseDirectoryName = pSourceDirectoryName.toLowerCase().replaceAll(" ", "-");
+            const linuxCaseDirectoryName = pSourceDirectory.name.toLowerCase().replaceAll(" ", "-");
             destinationDirectoryName = this.settings.destination.directoryNamePattern;
-            destinationDirectoryName = destinationDirectoryName.replace("{0}", pSourceDirectoryName);
+            destinationDirectoryName = destinationDirectoryName.replace("{0}", pSourceDirectory.name);
+            destinationDirectoryName = destinationDirectoryName.replace("{Name}", pSourceDirectory.name);
             destinationDirectoryName = destinationDirectoryName.replace("{1}", linuxCaseDirectoryName);
+            destinationDirectoryName = destinationDirectoryName.replace("{LinuxName}", linuxCaseDirectoryName);
         }
         return destinationDirectoryName;
     }
 
-    async processFile(pSourceDirectoryName, pSourceFilePath, pSourceFileName, pDestinationDirectorySubPath, pIndentation) {
-        this.logger.writeLine(pSourceFileName, pIndentation * this.logger.tab);
-        this.emptyTemporaryDirectory();
-        await this.splitSourceFile(pSourceFilePath);
-        const destinationFileName = this.convertSourceToDestinationFileName(pSourceFileName);
-        await this.processTemporaryFiles(pSourceDirectoryName, pDestinationDirectorySubPath, destinationFileName);
-    }
-    
-    emptyTemporaryDirectory() {
-		const temporaryDirectoryEntries = FileSystem.readdirSync(this.temporaryDirectoryPath, { withFileTypes: true });
-		for (const temporaryDirectoryEntry of temporaryDirectoryEntries)
-            if (temporaryDirectoryEntry.isFile())
-                if (!temporaryDirectoryEntry.name.startsWith("."))
-                    FileSystem.unlinkSync(Path.join(this.temporaryDirectoryPath, temporaryDirectoryEntry.name));
+    async processFile(pSourceFile, pDestinationDirectorySubPath, pIndentation) {
+        if (this.onFile)
+            this.onFile(new LogicFileSystemItemEventArgs(this, pSourceFile, pIndentation));
+        FileSystemToolkit.createDirectoryIfDoesntExist(this.temporaryDirectoryPath);
+        FileSystemToolkit.emptyDirectory(this.temporaryDirectoryPath);
+        await this.imageProcessor.split(pSourceFile.path, this.temporaryDirectoryPath, this.settings.destination.fileType);
+        const destinationFileName = this.createDestinationFileName(pSourceFile);
+        await this.processExtractedFiles(pDestinationDirectorySubPath, destinationFileName);
     }
 
-    async splitSourceFile(pSourceFilePath) {
-        await this.imageMagickRunner.split(pSourceFilePath, this.temporaryDirectoryPath, this.settings.destination.fileType);
-    }
-
-    convertSourceToDestinationFileName(pSourceFileName) {
-        const sourceFileNameWithoutExtension = Path.parse(pSourceFileName).name;
+    createDestinationFileName(pSourceFile) {
+        const sourceFileNameWithoutExtension = Path.parse(pSourceFile.path).name;
         let destinationFileName =  sourceFileNameWithoutExtension;
         if (this.settings.destination.fileNamePattern) {
             const linuxCaseFileName = sourceFileNameWithoutExtension.toLowerCase().replaceAll(" ", "-");
             destinationFileName = this.settings.destination.fileNamePattern;
             destinationFileName = destinationFileName.replace("{0}", sourceFileNameWithoutExtension);
+            destinationFileName = destinationFileName.replace("{Name}", sourceFileNameWithoutExtension);
             destinationFileName = destinationFileName.replace("{1}", linuxCaseFileName);
+            destinationFileName = destinationFileName.replace("{LinuxName}", linuxCaseFileName);
         }
         return `${destinationFileName}.${this.settings.destination.fileType}`;
     }
 
-    async processTemporaryFiles(pSourceDirectoryName, pDestinationDirectorySubPath, pDestinationFileName) {
-		const temporaryDirectoryEntries = FileSystem.readdirSync(this.temporaryDirectoryPath, { withFileTypes: true });
-		for (const temporaryDirectoryEntry of temporaryDirectoryEntries)
-            if (temporaryDirectoryEntry.isFile())
-                if (this.temporaryFileMask.contains(temporaryDirectoryEntry.name)) {
-                    const temporaryFilePath = Path.join(this.temporaryDirectoryPath, temporaryDirectoryEntry.name);
-                    const imageInformation = await this.imageMagickRunner.getInformation(temporaryFilePath);
-                    if (imageInformation.depth >= this.settings.source.minimumColourDepth)
-                        if (this.settings.source.sizes.containsSize(imageInformation.width, imageInformation.height))
-                            this.copyFileToDestination(pSourceDirectoryName, temporaryFilePath, imageInformation, pDestinationDirectorySubPath, pDestinationFileName);
-                }
+    async processExtractedFiles(pDestinationSubPath, pDestinationFileName) {
+		const temporaryDirectoryItems = FileSystemToolkit.readDirectory(this.temporaryDirectoryPath);
+		for (const temporaryDirectoryItem of temporaryDirectoryItems) {
+            const imageInformation = await this.imageProcessor.getInformation(temporaryDirectoryItem.path);
+            if (imageInformation.depth >= this.settings.source.minimumColourDepth)
+                if (this.settings.source.sizes.containsSize(imageInformation.width, imageInformation.height))
+                    this.copyFileToDestination(temporaryDirectoryItem, imageInformation, pDestinationSubPath, pDestinationFileName);
+        }
     }    
 
-    copyFileToDestination(pSourceDirectoryName, pTemporaryFilePath, pImageInformation, pDestinationDirectorySubPath, pFileName) {
-        let destinationSizeSubDirectory = `${pImageInformation.width}x${pImageInformation.height}`;
+    copyFileToDestination(pTemporaryFile, pImageInformation, pDestinationSubPath, pDestinationFileName) {
+        const destinationSizeDirectoryName = this.createDestinationDirectoryName(pImageInformation);
+        const destinationDirectoryPath = Path.join(this.destinationDirectoryPath, destinationSizeDirectoryName, pDestinationSubPath);
+        FileSystemToolkit.createDirectoryIfDoesntExist(destinationDirectoryPath);
+        const destinationFilePath = Path.join(destinationDirectoryPath, pDestinationFileName);
+        FileSystem.copyFileSync(pTemporaryFile, destinationFilePath);
+    }
+
+    createDestinationSizeDirectoryName(pImageInformation) {
+        let destinationSizeDirectoryName = `${pImageInformation.width}x${pImageInformation.height}`;
         if (this.settings.destination.sizeDirectoryNamePattern) {
-            destinationSizeSubDirectory = this.settings.destination.sizeDirectoryNamePattern;
-            const widthText = pImageInformation.width.formatWithLeadingZeros(4);
-            const heightText = pImageInformation.height.formatWithLeadingZeros(4);
-            destinationSizeSubDirectory = destinationSizeSubDirectory.replace("{0}", pImageInformation.width);
-            destinationSizeSubDirectory = destinationSizeSubDirectory.replace("{1}", pImageInformation.height);
-            destinationSizeSubDirectory = destinationSizeSubDirectory.replace("{2}", widthText);
-            destinationSizeSubDirectory = destinationSizeSubDirectory.replace("{3}", heightText);
+            destinationSizeDirectoryName = this.settings.destination.sizeDirectoryNamePattern;
+            const widthFixed = pImageInformation.width.formatWithLeadingZeros(4);
+            const heightFixed = pImageInformation.height.formatWithLeadingZeros(4);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{0}", pImageInformation.width);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{Width}", pImageInformation.width);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{1}", pImageInformation.height);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{Height}", pImageInformation.height);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{2}", widthFixed);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{WidthFixed}", widthFixed);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{3}", heightFixed);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{HeightFixed}", heightFixed);
         }
-        const destinationDirectoryPath = Path.join(this.destinationDirectoryPath, destinationSizeSubDirectory, pDestinationDirectorySubPath);
-        this.makeSureDirectoryExists(destinationDirectoryPath);
-        const destinationFilePath = Path.join(destinationDirectoryPath, pFileName);
-        FileSystem.copyFileSync(pTemporaryFilePath, destinationFilePath);
-        const indexDirectoryPath = Path.join(destinationSizeSubDirectory, pDestinationDirectorySubPath);
-        this.iconIndex.add(indexDirectoryPath, pImageInformation.width, pSourceDirectoryName);
+        return destinationSizeDirectoryName;
     }
 
-    makeSureDirectoryExists(pDirectoryPath) {
-        if (!FileSystem.existsSync(pDirectoryPath))
-            FileSystem.mkdirSync(pDirectoryPath, { recursive: true });
-    }
-
-    makeSureDirectoryIsDeleted(pDirectoryPath) {
-        if (FileSystem.existsSync(pDirectoryPath))
-            FileSystem.rmSync(pDirectoryPath, { recursive: true });
+    finalise() {
+        FileSystemToolkit.emptyDirectory(this.temporaryDirectoryPath);
+        FileSystemToolkit.deleteDirectoryIfExists(this.temporaryDirectoryPath);
+        if (this.onFinalise)
+            this.onFinalise(new LogicEventArgs(this));
     }
 }

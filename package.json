@@ -13,7 +13,9 @@
     },
     "license": "ISC",
     "dependencies": {
-        "console-library": "file:../../lib/console-library",
-        "core-library": "file:../../lib/core-library"
+        "console-library": "file:../../Libraries/Console Library",
+        "core-library": "file:../../Libraries/Core Library",
+        "file-system-library": "file:../../Libraries/File System Library",
+        "image-library": "file:../../Libraries/Image Library"
     }
 }

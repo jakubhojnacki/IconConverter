@@ -1,6 +1,6 @@
 {
     "source": {
-        "fileMask": "*.ico",
+        "filter": "*.ico",
         "minimumColourDepth": 8,
         "sizes": [
             {
@@ -38,5 +38,9 @@
         "directoryNamePattern": "",
         "fileType": "png",
         "fileNamePattern": "{0}"
+    },
+    "imageProcessor": {
+        "type": "ImageMagickShell",
+        "path": "/usr/bin"
     }
 }
