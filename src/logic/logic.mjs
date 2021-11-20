@@ -25,7 +25,6 @@ export class Logic {
     get temporaryDirectoryPath() { return this.mTemporaryDirectoryPath; }
     get temporaryFileMask() { return this.mTemporaryFileMask; }
     get imageMagickRunner() { return this.mImageMagickRunner; }
-    get iconIndex() { return this.mIconIndex; }
 
     constructor(pApplication, pSourceDirectoryPath, pDestinationDirectoryPath) {
         this.application = pApplication;
@@ -35,29 +34,14 @@ export class Logic {
 
         this.mTemporaryFileMask = new FileMask(`*.${this.settings.destination.fileType}`);
         this.mImageMagickRunner = new ImageMagickRunner();
-        this.mIconIndex = new IconIndex(this.settings.index.create, this.destinationDirectoryPath, this.settings.index.fileName, 
-            this.settings.index.namePattern);
     }
 
     async run() {
-        this.validate();
-        this.iconIndex.initialise();
         this.makeSureDirectoryExists(this.temporaryDirectoryPath);
         await this.processDirectory(this.sourceDirectoryPath, "/", "", 0);
         this.makeSureDirectoryIsDeleted(this.temporaryDirectoryPath);
-        this.iconIndex.finalise();
     }
 
-    validate() {
-        let result = false;
-        const validator = new ConsoleValidator();
-        validator.setComponent(Logic.name);
-        validator.testNotEmpty("sourceDirectoryPath", this.sourceDirectoryPath);
-        validator.testNotEmpty("destinationDirectoryPath", this.destinationDirectoryPath);
-        validator.restoreComponent();
-        return result;
-    }    
-    
     async processDirectory(pSourceDirectoryPath, pSourceDirectoryName, pDestinationDirectorySubPath, pIndentation) {
         this.logger.writeLine(`[${pSourceDirectoryName}]`, pIndentation * this.logger.tab);
 		const sourceDirectoryEntries = FileSystem.readdirSync(pSourceDirectoryPath, { withFileTypes: true });
