@@ -126,33 +126,36 @@ export class Logic {
     async processFile(pSourceFile, pDestinationSubPath, pIndentation) {
         if (this.onFile)
             this.onFile(new LogicFileSystemItemEventArgs(this, pSourceFile, pIndentation));
-        const sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile.path);
+        let sourceImageInformation = null;
         for (const size of this.settings.source.sizes) {
-            const sourceImagePage = sourceImageInformation.findPage(size.width, size.height, this.settings.source.depth);
-            if (sourceImagePage) {
-                const destinationSizeDirectoryName = this.createDestinationSizeDirectoryName(sourceImagePage);
-                const destinationFolderPath = Path.join(this.destinationDirectoryPath, destinationSizeDirectoryName, pDestinationSubPath);
-                FileSystemToolkit.createDirectoryIfDoesntExist(destinationFolderPath);
-                const destinationFileName = this.createDestinationFileName(pSourceFile);
-                const destinationFilePath = Path.join(destinationFolderPath, destinationFileName);
-                if (sourceImagePage.index)
-                    await this.imageProcessor.extract(pSourceFile.path, sourceImagePage.index, destinationFilePath);
-                else
-                    FileSystem.copyFileSync(pSourceFile.path, destinationFilePath);
+            const destinationSizeDirectoryName = this.createDestinationSizeDirectoryName(size);
+            const destinationFolderPath = Path.join(this.destinationDirectoryPath, destinationSizeDirectoryName, pDestinationSubPath);
+            FileSystemToolkit.createDirectoryIfDoesntExist(destinationFolderPath);
+            const destinationFileName = this.createDestinationFileName(pSourceFile);
+            const destinationFilePath = Path.join(destinationFolderPath, destinationFileName);
+            if (!FileSystem.existsSync(destinationFilePath)) {
+                if (sourceImageInformation == null)
+                    sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile.path);
+                const sourceImagePage = sourceImageInformation.findPage(size.width, size.height, this.settings.source.depth);
+                if (sourceImagePage)
+                    if (sourceImagePage.index)
+                        await this.imageProcessor.extract(pSourceFile.path, sourceImagePage.index, destinationFilePath);
+                    else
+                        FileSystem.copyFileSync(pSourceFile.path, destinationFilePath);
             }
         }
     }
 
-    createDestinationSizeDirectoryName(pImageInformation) {
-        let destinationSizeDirectoryName = `${pImageInformation.width}x${pImageInformation.height}`;
+    createDestinationSizeDirectoryName(pSize) {
+        let destinationSizeDirectoryName = `${pSize.width}x${pSize.height}`;
         if (this.settings.destination.sizeDirectoryNamePattern) {
             destinationSizeDirectoryName = this.settings.destination.sizeDirectoryNamePattern;
-            const widthFixed = pImageInformation.width.pad(4);
-            const heightFixed = pImageInformation.height.pad(4);
-            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{0}", pImageInformation.width);
-            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{Width}", pImageInformation.width);
-            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{1}", pImageInformation.height);
-            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{Height}", pImageInformation.height);
+            const widthFixed = pSize.width.pad(4);
+            const heightFixed = pSize.height.pad(4);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{0}", pSize.width);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{Width}", pSize.width);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{1}", pSize.height);
+            destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{Height}", pSize.height);
             destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{2}", widthFixed);
             destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{WidthFixed}", widthFixed);
             destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{3}", heightFixed);

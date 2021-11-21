@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/src/main.mjs",
             "args": [
                 "/home/Multimedia/Icons (ICO)",
-                "/home/Temp"
+                "/home/Multimedia/Icons"
             ],
             "console": "integratedTerminal"
         }
