@@ -1,7 +1,7 @@
 {
     "name": "icon-converter",
     "displayName": "Icon Converter",
-    "version": "0.0.2",
+    "version": "1.0.0",
     "description": "Tool to convert icons from ICO to PNG",
     "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
     "date": "November 2021",

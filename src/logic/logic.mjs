@@ -10,6 +10,7 @@ import Path from "path";
 
 import { FileSystemItem } from "file-system-library";
 import { FileSystemItemType } from "file-system-library";
+import { FileSystemMatcher } from "file-system-library";
 import { FileSystemToolkit } from "file-system-library";
 import { ImageProcessorFactory } from "image-library";
 import { LogicEventArgs } from "../logic/logicEventArgs.mjs";
@@ -26,6 +27,8 @@ export class Logic {
     get destinationDirectoryPath() { return this.mDestinationDirectoryPath; }
     set destinationDirectoryPath(pValue) { this.mDestinationDirectoryPath = String.verify(pValue); }
 
+    get fileMatcher() { return this.mFileMatcher; }
+    set fileMatcher(pValue) { this.mFileMatcher = pValue; }
     get imageProcessor() { return this.mImageProcessor; }
     set imageProcessor(pValue) { this.mImageProcessor = pValue; }
     
@@ -44,6 +47,7 @@ export class Logic {
         this.sourceDirectoryPath = pSourceDirectoryPath;
         this.destinationDirectoryPath = pDestinationDirectoryPath;
 
+        this.fileMatcher = this.settings.source.filter ? new FileSystemMatcher(this.settings.source.filter) : null;
         this.imageProcessor = ( new ImageProcessorFactory()).create(this.settings.imageProcessor.type, this.settings.imageProcessor.path, this.application.rootDirectoryPath);
 
         this.onInitialise = null;
@@ -66,15 +70,17 @@ export class Logic {
 
     countFilesInDirectory(pPath, pFileCount) {
         let fileCount = pFileCount;
-        const items = FileSystemToolkit.readDirectory(pPath, this.settings.source.filter);
+        const items = FileSystemToolkit.readDirectory(pPath);
         for (const item of items) {
             switch (item.type) {
                 case FileSystemItemType.directory:
                     fileCount = this.countFilesInDirectory(item.path, fileCount);
                     break;
-                case FileSystemItemType.file:
-                    fileCount++;
-                    break;
+                case FileSystemItemType.file: {
+                    const countFile = this.fileMatcher ? this.fileMatcher.matches(item.name) : true;
+                    if (countFile)
+                        fileCount++;
+                } break;
             }
         }
         return fileCount;
@@ -88,17 +94,19 @@ export class Logic {
     async processDirectory(pSourceDirectory, pDestinationSubPath, pIndentation) {
         if (this.onDirectory)
             this.onDirectory(new LogicFileSystemItemEventArgs(this, pSourceDirectory, pIndentation));
-		const sourceDirectoryItems = FileSystemToolkit.readDirectory(pSourceDirectory.path, this.settings.source.filter);
+		const sourceDirectoryItems = FileSystemToolkit.readDirectory(pSourceDirectory.path);
 		for (const sourceDirectoryItem of sourceDirectoryItems)
             switch (sourceDirectoryItem.type) {
                 case FileSystemItemType.directory: {
-                    const destinationbDirectoryName = this.createDestinationDirectoryName(sourceDirectoryItem.name);
+                    const destinationbDirectoryName = this.createDestinationDirectoryName(sourceDirectoryItem);
                     const destinationSubPath = Path.join(pDestinationSubPath, destinationbDirectoryName);
                     await this.processDirectory(sourceDirectoryItem, destinationSubPath, pIndentation + 1);
                 } break;
-                case FileSystemItemType.file:
-                    await this.processFile(sourceDirectoryItem, pDestinationSubPath, pIndentation + 1);
-                    break;
+                case FileSystemItemType.file: {
+                    const processFile = this.fileMatcher ? this.fileMatcher.matches(sourceDirectoryItem.name) : true;
+                    if (processFile)
+                        await this.processFile(sourceDirectoryItem, pDestinationSubPath, pIndentation + 1);
+                } break;
             }
     }  
 

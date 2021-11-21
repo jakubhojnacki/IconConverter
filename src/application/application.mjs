@@ -35,7 +35,7 @@ export class Application extends ConsoleApplication {
 
     onLogicInitialise(pEventArgs) {
         const __this = this;
-        this.progress = new ConsoleProgress(null, null, (lProgress) => { __this.onProgressUpdate(lProgress); }, "[", "#", "]", 20, this.console.width);
+        this.progress = new ConsoleProgress(null, null, (lProgress) => { __this.onProgressUpdate(lProgress); }, "[", "#", "]", 40, this.console.width);
         this.progress.reset(pEventArgs.fileCount, "Extracting icons...");
         this.newLineOnError = true;
     }
