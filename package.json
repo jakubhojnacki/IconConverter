@@ -1,8 +1,8 @@
 {
-    "name": "icon-converter",
-    "displayName": "Icon Converter",
+    "name": "icon-extractor",
+    "displayName": "Icon Extractor",
     "version": "1.0.0",
-    "description": "Tool to convert icons from ICO to PNG",
+    "description": "Tool to extract images from icons (ICO) to separate files",
     "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
     "date": "November 2021",
     "type": "module",
