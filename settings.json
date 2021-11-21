@@ -1,7 +1,7 @@
 {
     "source": {
         "filter": "*.ico",
-        "minimumColourDepth": 8,
+        "depth": 8,
         "sizes": [
             {
                 "width": 16,

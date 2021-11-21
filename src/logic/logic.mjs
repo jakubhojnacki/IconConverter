@@ -117,46 +117,24 @@ export class Logic {
         return destinationDirectoryName;
     }
 
-    async processFile(pSourceFile, pDestinationDirectorySubPath, pIndentation) {
+    async processFile(pSourceFile, pDestinationSubPath, pIndentation) {
         if (this.onFile)
             this.onFile(new LogicFileSystemItemEventArgs(this, pSourceFile, pIndentation));
-        FileSystemToolkit.createDirectoryIfDoesntExist(this.temporaryDirectoryPath);
-        FileSystemToolkit.emptyDirectory(this.temporaryDirectoryPath);
-        await this.imageProcessor.split(pSourceFile.path, this.temporaryDirectoryPath, this.settings.destination.fileType);
-        const destinationFileName = this.createDestinationFileName(pSourceFile);
-        await this.processExtractedFiles(pDestinationDirectorySubPath, destinationFileName);
-    }
-
-    createDestinationFileName(pSourceFile) {
-        const sourceFileNameWithoutExtension = Path.parse(pSourceFile.path).name;
-        let destinationFileName =  sourceFileNameWithoutExtension;
-        if (this.settings.destination.fileNamePattern) {
-            const linuxCaseFileName = sourceFileNameWithoutExtension.toLowerCase().replaceAll(" ", "-");
-            destinationFileName = this.settings.destination.fileNamePattern;
-            destinationFileName = destinationFileName.replace("{0}", sourceFileNameWithoutExtension);
-            destinationFileName = destinationFileName.replace("{Name}", sourceFileNameWithoutExtension);
-            destinationFileName = destinationFileName.replace("{1}", linuxCaseFileName);
-            destinationFileName = destinationFileName.replace("{LinuxName}", linuxCaseFileName);
+        for (const size of this.settings.source.sizes) {
+            const sourceImageInformation = this.imageProcessor.getInformation(pSourceFile.path);
+            const sourceImagePage = sourceImageInformation.findPage(size.width, size.height, this.settings.source.depth);
+            if (sourceImagePage) {
+                const destinationSizeDirectoryName = this.createDestinationSizeDirectoryName(sourceImagePage);
+                const destinationFolderPath = Path.join(this.destinationDirectoryPath, destinationSizeDirectoryName, pDestinationSubPath);
+                FileSystemToolkit.createDirectoryIfDoesntExist(destinationFolderPath);
+                const destinationFileName = this.createDestinationFileName(pSourceFile);
+                const destinationFilePath = Path.join(destinationFolderPath, destinationFileName);
+                if (sourceImagePage.index)
+                    await this.imageProcessor.extract(pSourceFile.path, sourceImagePage.index, destinationFilePath);
+                else
+                    FileSystem.copyFileSync(pSourceFile.path, destinationFilePath);
+            }
         }
-        return `${destinationFileName}.${this.settings.destination.fileType}`;
-    }
-
-    async processExtractedFiles(pDestinationSubPath, pDestinationFileName) {
-		const temporaryDirectoryItems = FileSystemToolkit.readDirectory(this.temporaryDirectoryPath);
-		for (const temporaryDirectoryItem of temporaryDirectoryItems) {
-            const imageInformation = await this.imageProcessor.getInformation(temporaryDirectoryItem.path);
-            if (imageInformation.depth >= this.settings.source.minimumColourDepth)
-                if (this.settings.source.sizes.containsSize(imageInformation.width, imageInformation.height))
-                    this.copyFileToDestination(temporaryDirectoryItem, imageInformation, pDestinationSubPath, pDestinationFileName);
-        }
-    }    
-
-    copyFileToDestination(pTemporaryFile, pImageInformation, pDestinationSubPath, pDestinationFileName) {
-        const destinationSizeDirectoryName = this.createDestinationDirectoryName(pImageInformation);
-        const destinationDirectoryPath = Path.join(this.destinationDirectoryPath, destinationSizeDirectoryName, pDestinationSubPath);
-        FileSystemToolkit.createDirectoryIfDoesntExist(destinationDirectoryPath);
-        const destinationFilePath = Path.join(destinationDirectoryPath, pDestinationFileName);
-        FileSystem.copyFileSync(pTemporaryFile, destinationFilePath);
     }
 
     createDestinationSizeDirectoryName(pImageInformation) {
@@ -175,6 +153,20 @@ export class Logic {
             destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{HeightFixed}", heightFixed);
         }
         return destinationSizeDirectoryName;
+    }
+
+    createDestinationFileName(pSourceFile) {
+        const sourceFileNameWithoutExtension = Path.parse(pSourceFile.path).name;
+        let destinationFileName =  sourceFileNameWithoutExtension;
+        if (this.settings.destination.fileNamePattern) {
+            const linuxCaseFileName = sourceFileNameWithoutExtension.toLowerCase().replaceAll(" ", "-");
+            destinationFileName = this.settings.destination.fileNamePattern;
+            destinationFileName = destinationFileName.replace("{0}", sourceFileNameWithoutExtension);
+            destinationFileName = destinationFileName.replace("{Name}", sourceFileNameWithoutExtension);
+            destinationFileName = destinationFileName.replace("{1}", linuxCaseFileName);
+            destinationFileName = destinationFileName.replace("{LinuxName}", linuxCaseFileName);
+        }
+        return `${destinationFileName}.${this.settings.destination.fileType}`;
     }
 
     finalise() {
