@@ -5,6 +5,7 @@
 
 "use strict";
 
+import FileSystem from "fs";
 import Path from "path";
 
 import { FileSystemItem } from "file-system-library";
@@ -24,8 +25,6 @@ export class Logic {
     set sourceDirectoryPath(pValue) { this.mSourceDirectoryPath = String.verify(pValue); }
     get destinationDirectoryPath() { return this.mDestinationDirectoryPath; }
     set destinationDirectoryPath(pValue) { this.mDestinationDirectoryPath = String.verify(pValue); }
-    get temporaryDirectoryPath() { return this.mTemporaryDirectoryPath; }
-    set temporaryDirectoryPath(pValue) { this.mTemporaryDirectoryPath = String.verify(pValue); }
 
     get imageProcessor() { return this.mImageProcessor; }
     set imageProcessor(pValue) { this.mImageProcessor = pValue; }
@@ -44,7 +43,6 @@ export class Logic {
 
         this.sourceDirectoryPath = pSourceDirectoryPath;
         this.destinationDirectoryPath = pDestinationDirectoryPath;
-        this.temporaryDirectoryPath = Path.join(this.destinationDirectoryPath, "__Temp");
 
         this.imageProcessor = ( new ImageProcessorFactory()).create(this.settings.imageProcessor.type, this.settings.imageProcessor.path, this.application.rootDirectoryPath);
 
@@ -120,8 +118,8 @@ export class Logic {
     async processFile(pSourceFile, pDestinationSubPath, pIndentation) {
         if (this.onFile)
             this.onFile(new LogicFileSystemItemEventArgs(this, pSourceFile, pIndentation));
+        const sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile.path);
         for (const size of this.settings.source.sizes) {
-            const sourceImageInformation = this.imageProcessor.getInformation(pSourceFile.path);
             const sourceImagePage = sourceImageInformation.findPage(size.width, size.height, this.settings.source.depth);
             if (sourceImagePage) {
                 const destinationSizeDirectoryName = this.createDestinationSizeDirectoryName(sourceImagePage);
@@ -141,8 +139,8 @@ export class Logic {
         let destinationSizeDirectoryName = `${pImageInformation.width}x${pImageInformation.height}`;
         if (this.settings.destination.sizeDirectoryNamePattern) {
             destinationSizeDirectoryName = this.settings.destination.sizeDirectoryNamePattern;
-            const widthFixed = pImageInformation.width.formatWithLeadingZeros(4);
-            const heightFixed = pImageInformation.height.formatWithLeadingZeros(4);
+            const widthFixed = pImageInformation.width.pad(4);
+            const heightFixed = pImageInformation.height.pad(4);
             destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{0}", pImageInformation.width);
             destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{Width}", pImageInformation.width);
             destinationSizeDirectoryName = destinationSizeDirectoryName.replace("{1}", pImageInformation.height);
@@ -170,8 +168,6 @@ export class Logic {
     }
 
     finalise() {
-        FileSystemToolkit.emptyDirectory(this.temporaryDirectoryPath);
-        FileSystemToolkit.deleteDirectoryIfExists(this.temporaryDirectoryPath);
         if (this.onFinalise)
             this.onFinalise(new LogicEventArgs(this));
     }
