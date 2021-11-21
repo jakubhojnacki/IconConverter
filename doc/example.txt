@@ -1,0 +1,27 @@
+./Access 01.ico[0] PNG 256x256 256x256+0+0 8-bit sRGB 51262B 0.000u 0:00.003
+./Access 01.ico[1] PNG 256x256 256x256+0+0 8-bit sRGB 24592B 0.000u 0:00.004
+./Access 01.ico[2] PNG 256x256 256x256+0+0 8-bit sRGB 11049B 0.000u 0:00.004
+./Access 01.ico[3] ICO 16x16 16x16+0+0 4-bit sRGB 0.000u 0:00.004
+./Access 01.ico[4] ICO 24x24 24x24+0+0 4-bit sRGB 0.000u 0:00.004
+./Access 01.ico[5] ICO 32x32 32x32+0+0 4-bit sRGB 0.000u 0:00.004
+./Access 01.ico[6] ICO 48x48 48x48+0+0 4-bit sRGB 0.000u 0:00.004
+./Access 01.ico[7] ICO 64x64 64x64+0+0 4-bit sRGB 0.000u 0:00.004
+./Access 01.ico[8] ICO 72x72 72x72+0+0 4-bit sRGB 0.000u 0:00.004
+./Access 01.ico[9] ICO 96x96 96x96+0+0 4-bit sRGB 0.000u 0:00.004
+./Access 01.ico[10] ICO 128x128 128x128+0+0 4-bit sRGB 0.000u 0:00.004
+./Access 01.ico[11] ICO 16x16 16x16+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[12] ICO 24x24 24x24+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[13] ICO 32x32 32x32+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[14] ICO 48x48 48x48+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[15] ICO 64x64 64x64+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[16] ICO 72x72 72x72+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[17] ICO 96x96 96x96+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[18] ICO 128x128 128x128+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[19] ICO 16x16 16x16+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[20] ICO 24x24 24x24+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[21] ICO 32x32 32x32+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[22] ICO 48x48 48x48+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[23] ICO 64x64 64x64+0+0 8-bit sRGB 0.000u 0:00.003
+./Access 01.ico[24] ICO 72x72 72x72+0+0 8-bit sRGB 0.000u 0:00.002
+./Access 01.ico[25] ICO 96x96 96x96+0+0 8-bit sRGB 0.000u 0:00.002
+./Access 01.ico[26] ICO 128x128 128x128+0+0 8-bit sRGB 327469B 0.000u 0:00.002
