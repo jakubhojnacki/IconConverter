@@ -136,12 +136,24 @@ export class Logic {
             if (!FileSystem.existsSync(destinationFilePath)) {
                 if (sourceImageInformation == null)
                     sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile.path);
-                const sourceImagePage = sourceImageInformation.findPage(size.width, size.height, this.settings.source.depth);
+                const sourceImagePage = this.findPage(sourceImageInformation, size.width, size.height, this.settings.source.depth);
                 if (sourceImagePage)
                     if (sourceImagePage.index != null)
                         await this.imageProcessor.extract(pSourceFile.path, sourceImagePage.index, destinationFilePath);
+                    else
+                        await this.imageProcessor.convert(pSourceFile.path, destinationFilePath);
             }
         }
+    }
+
+    findPage(pSourceImageInformation, pWidth, pHeight, pDepth) {
+        let page = null;
+        if (pSourceImageInformation.pages != null)
+            page = pSourceImageInformation.pages.find((lPage) => { return ((lPage.width === pWidth) && (lPage.height === pHeight) && (lPage.depth >= pDepth)); });
+        else
+            if ((pSourceImageInformation.width === pWidth) && (pSourceImageInformation.height === pHeight) && (pSourceImageInformation.depth >= pDepth))
+                page = pSourceImageInformation;
+        return page;
     }
 
     createDestinationSizeDirectoryName(pSize) {
