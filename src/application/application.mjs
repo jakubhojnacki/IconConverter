@@ -22,14 +22,19 @@ export class Application extends ConsoleApplication {
     }
 
     async runLogic() {
-        const __this = this;
         const sourceDirectoryPath = this.args.get(ArgName.sourceDirectoryPath);
         const destinationDirectoryPath = this.args.get(ArgName.destinationDirectoryPath);
+        this.console.writeLine(`Source Directory Path: ${sourceDirectoryPath}`);
+        this.console.writeLine(`Destination Directory Path: ${destinationDirectoryPath}`);
+
         const logic = new Logic(this, sourceDirectoryPath, destinationDirectoryPath);
+
+        const __this = this;
         logic.onInitialise = (lEventArgs) => { __this.onLogicInitialise(lEventArgs); };
         logic.onDirectory = (lEventArgs) => { __this.onLogicDirectory(lEventArgs); };
         logic.onFile = (lEventArgs) => { __this.onLogicFile(lEventArgs); };
         logic.onFinalise = (lEventArgs) => { __this.onLogicFinalise(lEventArgs); };
+
         await logic.run();
     }
 

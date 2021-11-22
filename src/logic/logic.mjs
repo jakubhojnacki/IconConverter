@@ -138,10 +138,8 @@ export class Logic {
                     sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile.path);
                 const sourceImagePage = sourceImageInformation.findPage(size.width, size.height, this.settings.source.depth);
                 if (sourceImagePage)
-                    if (sourceImagePage.index)
+                    if (sourceImagePage.index != null)
                         await this.imageProcessor.extract(pSourceFile.path, sourceImagePage.index, destinationFilePath);
-                    else
-                        FileSystem.copyFileSync(pSourceFile.path, destinationFilePath);
             }
         }
     }
