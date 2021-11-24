@@ -24,8 +24,8 @@ export class Application extends ConsoleApplication {
     async runLogic() {
         const sourceDirectoryPath = this.args.get(ArgName.sourceDirectoryPath);
         const destinationDirectoryPath = this.args.get(ArgName.destinationDirectoryPath);
-        this.console.writeLine(`Source Directory Path: ${sourceDirectoryPath}`);
-        this.console.writeLine(`Destination Directory Path: ${destinationDirectoryPath}`);
+        this.console.writeLine(`Source Directory Path: ${sourceDirectoryPath}`, 1);
+        this.console.writeLine(`Destination Directory Path: ${destinationDirectoryPath}`, 1);
 
         const logic = new Logic(this, sourceDirectoryPath, destinationDirectoryPath);
 
