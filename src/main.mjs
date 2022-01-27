@@ -6,7 +6,7 @@
 "use strict"
 
 import { Application } from "./application/application.mjs";
-import { Node } from "core-library";
+import { Node } from "fortah-core-library";
 
 (() => {
     const rootDirectoryPath = Node.getRoot(import.meta, true);

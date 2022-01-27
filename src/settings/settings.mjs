@@ -7,7 +7,7 @@
 
 import { DestinationSettings } from "../settings/destinationSettings.mjs";
 import { ImageProcessorSettings } from "../settings/imageProcessorSettings.mjs";
-import { SettingsBase } from "core-library";
+import { SettingsBase } from "fortah-core-library";
 import { SourceSettings } from "../settings/sourceSettings.mjs";
 
 export class Settings extends SettingsBase {

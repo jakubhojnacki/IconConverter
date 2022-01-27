@@ -4,9 +4,9 @@
  */
 
 import { ArgName } from "./argName.mjs";
-import { ArgTemplateFactoryBase } from "core-library";
-import { ArgTemplate } from "core-library";
-import { DataType } from "core-library";
+import { ArgTemplateFactoryBase } from "fortah-core-library";
+import { ArgTemplate } from "fortah-core-library";
+import { DataType } from "fortah-core-library";
 
 export class ArgTemplateFactory extends ArgTemplateFactoryBase {
     constructor() {

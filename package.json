@@ -1,7 +1,7 @@
 {
     "name": "icon-extractor",
     "displayName": "Icon Extractor",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Tool to extract images from icons (ICO) to separate files",
     "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
     "date": "November 2021",
@@ -13,9 +13,9 @@
     },
     "license": "ISC",
     "dependencies": {
-        "console-library": "file:../../Libraries/Console Library",
-        "core-library": "file:../../Libraries/Core Library",
-        "file-system-library": "file:../../Libraries/File System Library",
-        "image-library": "file:../../Libraries/Image Library"
+        "fortah-console-library": "file:../FortahConsoleLibrary",
+        "fortah-core-library": "file:../FortahCoreLibrary",
+        "fortah-file-system-library": "file:../FortahFileSystemLibrary",
+        "fortah-image-library": "file:../FortahImageLibrary"
     }
 }

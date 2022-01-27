@@ -5,8 +5,8 @@
 
 "use strict"
 
-import { Enum } from "core-library";
-import { EnumItem } from "core-library";
+import { Enum } from "fortah-core-library";
+import { EnumItem } from "fortah-core-library";
  
 export class ArgName {
     static get sourceDirectoryPath() { return "SourceDirectoryPath"; }

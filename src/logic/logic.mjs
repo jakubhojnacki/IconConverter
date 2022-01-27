@@ -8,11 +8,11 @@
 import FileSystem from "fs";
 import Path from "path";
 
-import { FileSystemItem } from "file-system-library";
-import { FileSystemItemType } from "file-system-library";
-import { FileSystemMatcher } from "file-system-library";
-import { FileSystemToolkit } from "file-system-library";
-import { ImageProcessorFactory } from "image-library";
+import { FileSystemItem } from "fortah-file-system-library";
+import { FileSystemItemType } from "fortah-file-system-library";
+import { FileSystemMatcher } from "fortah-file-system-library";
+import { FileSystemToolkit } from "fortah-file-system-library";
+import { ImageProcessorFactory } from "fortah-image-library";
 import { LogicEventArgs } from "../logic/logicEventArgs.mjs";
 import { LogicFileCountEventArgs } from "../logic/logicFileCountEventArgs.mjs";
 import { LogicFileSystemItemEventArgs } from "../logic/logicFileSystemItemEventArgs.mjs";

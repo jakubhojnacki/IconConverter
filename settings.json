@@ -41,6 +41,6 @@
     },
     "imageProcessor": {
         "type": "ImageMagickShell",
-        "path": "/usr/bin"
+        "path": "C:\\Program Files\\ImageMagick"
     }
 }
