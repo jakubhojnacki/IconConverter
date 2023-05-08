@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/src/main.mjs",
             "args": [
                 "C:\\Multimedia\\Icons",
-                "C:\\Multimedia\\Icons (PNG)"
+                "C:\\Temp"
             ],
             "console": "integratedTerminal"
         }

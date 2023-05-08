@@ -1,30 +1,21 @@
 {
-  "name": "icon-converter",
-  "displayName": "Icon Converter",
-  "version": "0.0.2",
-  "description": "Tool to convert icons from ICO to PNG",
-  "date": "August 2021",
-  "type": "module",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jakubhojnacki/icon-converter.git"
-  },
-  "keywords": [
-    "icon",
-    "ico",
-    "png"
-  ],
-  "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/jakubhojnacki/icon-converter/issues"
-  },
-  "homepage": "https://github.com/jakubhojnacki/icon-converter#readme",
-  "dependencies": {
-    "imagemagick": "^0.1.3"
-  }
+    "name": "icon-extractor",
+    "displayName": "Icon Extractor",
+    "version": "1.1.0",
+    "description": "Tool to extract images from icons (ICO) to separate files",
+    "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
+    "date": "November 2021",
+    "type": "module",
+    "main": "src/main.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jakubhojnacki/icon-converter.git"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "fortah-console-library": "file:../NodeJS_Fortah-Console-Library",
+        "fortah-core-library": "file:../NodeJS_Fortah-Core-Library",
+        "fortah-file-system-library": "file:../NodeJS_Fortah-File-System-Library",
+        "fortah-image-library": "file:../NodeJS_Fortah-Image-Library"
+    }
 }

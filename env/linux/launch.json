@@ -10,8 +10,8 @@
             ],
             "program": "${workspaceFolder}/src/main.mjs",
             "args": [
-                "C:\\Multimedia\\Icons",
-                "C:\\Multimedia\\Icons (PNG)"
+                "/home/Multimedia/Icons (ICO)",
+                "/home/Multimedia/Icons"
             ],
             "console": "integratedTerminal"
         }
