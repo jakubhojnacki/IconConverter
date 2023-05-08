@@ -13,9 +13,9 @@
     },
     "license": "ISC",
     "dependencies": {
-        "fortah-console-library": "file:../FortahConsoleLibrary",
-        "fortah-core-library": "file:../FortahCoreLibrary",
-        "fortah-file-system-library": "file:../FortahFileSystemLibrary",
-        "fortah-image-library": "file:../FortahImageLibrary"
+        "fortah-console-library": "file:../NodeJS_Fortah-Console-Library",
+        "fortah-core-library": "file:../NodeJS_Fortah-Core-Library",
+        "fortah-file-system-library": "file:../NodeJS_Fortah-File-System-Library",
+        "fortah-image-library": "file:../NodeJS_Fortah-Image-Library"
     }
 }
